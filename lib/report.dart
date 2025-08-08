@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'localization/app_localizations.dart';
+import 'widgets/app_top_bar.dart';
 
 class MyReportsScreen extends StatelessWidget {
   final String userId;
@@ -15,42 +17,16 @@ class MyReportsScreen extends StatelessWidget {
         .where('userId', isEqualTo: userId)
         .where('status', isEqualTo: 'Not Approved');
 
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'My Pending Reports',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-            color: Colors.white,
-            shadows: [
-              Shadow(
-                blurRadius: 8.0,
-                color: Colors.black26,
-                offset: Offset(2.0, 2.0),
-              ),
-            ],
-          ),
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.green, Colors.lightGreen],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        elevation: 4,
-      ),
+      appBar: AppTopBar(title: Text(l.myPendingReports)),
       body: StreamBuilder<QuerySnapshot>(
         stream: reportsQuery.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
                 child: Text(
-                  'Error: ${snapshot.error}',
+                  '${l.error}: ${snapshot.error}',
                   style: const TextStyle(color: Colors.red),
                 ));
           }
@@ -59,7 +35,7 @@ class MyReportsScreen extends StatelessWidget {
           }
           final docs = snapshot.data!.docs;
           if (docs.isEmpty) {
-            return const Center(child: Text('No pending reports found.'));
+            return Center(child: Text(l.noPendingReports));
           }
 
           return ListView.builder(
@@ -192,34 +168,7 @@ class ReportDetailScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Report Details',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-            color: Colors.white,
-            shadows: [
-              Shadow(
-                blurRadius: 8.0,
-                color: Colors.black26,
-                offset: Offset(2.0, 2.0),
-              ),
-            ],
-          ),
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.green, Colors.lightGreen],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        elevation: 4,
-      ),
+      appBar: AppTopBar(title: Text(AppLocalizations.of(context)!.reportDetails)),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -248,7 +197,7 @@ class ReportDetailScreen extends StatelessWidget {
             const Divider(thickness: 1.5),
             const SizedBox(height: 8),
             Text(
-              'Complaint:',
+              '${AppLocalizations.of(context)!.complaint}:',
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -265,7 +214,7 @@ class ReportDetailScreen extends StatelessWidget {
                 const Icon(Icons.confirmation_number, color: Colors.black54),
                 const SizedBox(width: 8),
                 Text(
-                  'Quantity: $quantity',
+                  '${AppLocalizations.of(context)!.quantityLabel}: $quantity',
                   style: const TextStyle(fontSize: 16),
                 ),
               ],
@@ -276,7 +225,7 @@ class ReportDetailScreen extends StatelessWidget {
                 const Icon(Icons.scale, color: Colors.black54),
                 const SizedBox(width: 8),
                 Text(
-                  'Weight per Kg: $weightPerKg',
+                  '${AppLocalizations.of(context)!.weightPerKgLabel}: $weightPerKg',
                   style: const TextStyle(fontSize: 16),
                 ),
               ],
@@ -298,7 +247,7 @@ class ReportDetailScreen extends StatelessWidget {
                 const Icon(Icons.info_outline, color: Colors.black54),
                 const SizedBox(width: 8),
                 Text(
-                  'Status: $status',
+                  '${AppLocalizations.of(context)!.statusLabel}: $status',
                   style: const TextStyle(fontSize: 16),
                 ),
               ],
@@ -311,14 +260,14 @@ class ReportDetailScreen extends StatelessWidget {
                   .get(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Text(
-                    "Loading user info...",
+                   return Text(
+                     AppLocalizations.of(context)!.loadingUserInfo,
                     style: TextStyle(fontSize: 16),
                   );
                 }
                 if (!snapshot.hasData || !snapshot.data!.exists) {
-                  return const Text(
-                    "Unknown user",
+                   return Text(
+                     AppLocalizations.of(context)!.unknownUser,
                     style: TextStyle(fontSize: 16),
                   );
                 }
@@ -330,7 +279,7 @@ class ReportDetailScreen extends StatelessWidget {
                     const Icon(Icons.person, color: Colors.black54),
                     const SizedBox(width: 8),
                     Text(
-                      'Reported by: $userName',
+                      '${AppLocalizations.of(context)!.reportedBy}: $userName',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ],

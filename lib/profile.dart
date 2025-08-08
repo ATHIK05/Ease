@@ -6,6 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'localization/app_localizations.dart';
+import 'state/app_state.dart';
+import 'widgets/app_top_bar.dart';
 
 // Profile Page with improved UI and no profile photo edit
 class ProfilePage extends StatefulWidget {
@@ -88,31 +92,21 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          "Profile",
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.green[800],
-            letterSpacing: 1.1,
-          ),
-        ),
+      appBar: AppTopBar(
+        title: Text(l.profile),
         actions: [
           OutlinedButton.icon(
             onPressed: () => _logout(context),
-            icon: Icon(Icons.logout, color: Colors.redAccent),
-            label: Text("Logout", style: TextStyle(color: Colors.redAccent)),
+            icon: const Icon(Icons.logout, color: Colors.redAccent),
+            label: Text(l.logout, style: const TextStyle(color: Colors.redAccent)),
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Colors.redAccent, width: 1.5),
+              side: const BorderSide(color: Colors.redAccent, width: 1.5),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               backgroundColor: Colors.white,
             ),
           ),
@@ -132,9 +126,9 @@ class _ProfilePageState extends State<ProfilePage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
-              return Center(child: Text('Error fetching user data'));
+              return Center(child: Text(l.error));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No user data available'));
+              return Center(child: Text(l.error));
             } else {
               final userData = snapshot.data!;
               final name = userData['name'] ?? 'No Name';
@@ -187,22 +181,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                name,
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green[900],
-                                ),
-                              ),
+                              Text(name, style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.green[900])),
                               SizedBox(height: 10),
-                              Text(
-                                'Phone: $phone',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
+                              Text('Phone: $phone', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[700])),
                               SizedBox(height: 24),
                               // Gradient Edit Profile button
                               Container(
@@ -224,8 +205,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 child: ElevatedButton.icon(
                                   onPressed: () => _editProfile(userData),
-                                  icon: Icon(Icons.edit, color: Colors.white),
-                                  label: Text("Edit Profile", style: TextStyle(color: Colors.white, fontSize: 17)),
+                                  icon: const Icon(Icons.edit, color: Colors.white),
+                                  label: Text(l.editProfile, style: const TextStyle(color: Colors.white, fontSize: 17)),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.transparent,
                                     shadowColor: Colors.transparent,
@@ -248,14 +229,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           _ElegantStatCard(
                             icon: Icons.score,
-                            label: 'Total Score',
+                            label: l.totalScore,
                             value: '$totalScore',
                             color: Colors.blueAccent,
                           ),
                           _ElegantStatCard(
                             icon: Icons.whatshot,
-                            label: 'Streak',
-                            value: isStreakActive ? '$streakCount days' : 'No streak',
+                            label: l.streak,
+                            value: isStreakActive ? '$streakCount ${l.days}' : l.noStreak,
                             color: isStreakActive ? Colors.green : Colors.redAccent,
                           ),
                         ],
@@ -263,7 +244,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       SizedBox(height: 18),
                       _ElegantStatCard(
                         icon: Icons.calendar_today,
-                        label: 'Last Completion',
+                        label: l.lastCompletion,
                         value: '${lastCompletion.toLocal()}'.split(' ')[0],
                         color: Colors.orange,
                       ),

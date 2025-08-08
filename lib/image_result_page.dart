@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'disposal.dart';
+import 'localization/app_localizations.dart';
 class ImageResultPage extends StatefulWidget {
   final File image;
   final Map<String, dynamic> descriptionText;
@@ -212,6 +213,7 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
@@ -233,7 +235,7 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Product Analysis",
+                    l.productAnalysis,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
@@ -289,14 +291,14 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
                 unselectedLabelColor: Colors.grey,
                 indicatorColor: Colors.green[700],
                 onTap: (index) {
-                  List<String> queries = ["Product Details", "Environmental Impact", "Health Impact", "Disposal Measures"];
+                  List<String> queries = [l.productDetailsTab, l.environmentalImpactTab, l.healthImpactTab, l.disposalMeasuresTab];
                   _fetchData(queries[index]);
                 },
                 tabs: [
-                  Tab(icon: Icon(Icons.info_outline, color: Colors.green[800]), text: "Product Details"),
-                  Tab(icon: Icon(Icons.eco, color: Colors.green[800]), text: "Environmental Impact"),
-                  Tab(icon: Icon(Icons.health_and_safety, color: Colors.green[800]), text: "Health Impact"),
-                  Tab(icon: Icon(Icons.delete_outline, color: Colors.green[800]), text: "Disposal Measures"),
+                  Tab(icon: Icon(Icons.info_outline, color: Colors.green[800]), text: l.productDetailsTab),
+                  Tab(icon: Icon(Icons.eco, color: Colors.green[800]), text: l.environmentalImpactTab),
+                  Tab(icon: Icon(Icons.health_and_safety, color: Colors.green[800]), text: l.healthImpactTab),
+                  Tab(icon: Icon(Icons.delete_outline, color: Colors.green[800]), text: l.disposalMeasuresTab),
                 ],
               ),
             ),
@@ -330,7 +332,7 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
                             Icon(Icons.insights, color: Colors.green[900], size: 28),
                             SizedBox(width: 8),
                             Text(
-                              "Analysis Result",
+                              l.analysisResult,
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -382,7 +384,7 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
                               },
                               icon: Icon(Icons.battery_saver, color: Colors.white),
                               label: Text(
-                                " Dispose & Clean!",
+                                ' ${l.disposeAndClean}',
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
                               ),
                               style: ElevatedButton.styleFrom(
@@ -404,7 +406,7 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
                             Icon(Icons.eco, color: Colors.green[700], size: 24),
                             SizedBox(width: 4),
                             Text(
-                              "Eco-Friendly Insights",
+                              l.ecoFriendlyInsights,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,

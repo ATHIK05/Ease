@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'wellness_page.dart';
+import 'package:provider/provider.dart';
+import 'state/app_state.dart';
+import 'widgets/app_top_bar.dart';
 import 'ShowTime.dart';
 import 'report.dart';
 class HomePage extends StatelessWidget {
@@ -18,6 +21,7 @@ class HomePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) {
+        final l = AppLocalizations.of(context)!;
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -31,6 +35,7 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildLanguageDialogContent(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -49,7 +54,7 @@ class HomePage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Text(
-            "Select Your Language",
+            l.selectLanguage,
             style: TextStyle(
               fontSize: 22.0,
               fontWeight: FontWeight.w600,
@@ -62,25 +67,25 @@ class HomePage extends StatelessWidget {
           ListTile(
             leading:
             const Icon(Icons.sort_by_alpha_sharp, color: Colors.green),
-            title: const Text("English"),
+            title: Text(l.english),
             onTap: () {
-              _updateLanguage("English");
+              _updateLanguage(context, "English");
               Navigator.of(context).pop();
             },
           ),
           ListTile(
             leading: const Icon(Icons.language, color: Colors.green),
-            title: const Text("தமிழ்"),
+            title: Text(l.tamil),
             onTap: () {
-              _updateLanguage("Tamil");
+              _updateLanguage(context, "Tamil");
               Navigator.of(context).pop();
             },
           ),
           ListTile(
             leading: const Icon(Icons.translate, color: Colors.green),
-            title: const Text("हिन्दी"),
+            title: Text(l.hindi),
             onTap: () {
-              _updateLanguage("Hindi");
+              _updateLanguage(context, "Hindi");
               Navigator.of(context).pop();
             },
           ),
@@ -90,26 +95,29 @@ class HomePage extends StatelessWidget {
   }
 
   // Method to update the language in the 'users' collection.
-  void _updateLanguage(String language) async {
+  void _updateLanguage(BuildContext context, String language) async {
     await FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
         .update({'language': language});
+    // Update in-memory locale immediately for real-time switch
+    try {
+      // ignore: use_build_context_synchronously
+      final appState = Provider.of<AppState>(context, listen: false);
+      appState.setLocaleByName(language);
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final appState = context.watch<AppState>();
     return Scaffold(
-      // AppBar remains unchanged.
-      appBar: AppBar(
+      appBar: AppTopBar(
         leading: IconButton(
-          icon: Icon(Icons.translate, color: Colors.green[900]),
+          icon: const Icon(Icons.translate),
           onPressed: () => _showLanguageDialog(context),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
         title: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('users')
@@ -117,14 +125,7 @@ class HomePage extends StatelessWidget {
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return const Text(
-                "Our Home",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.green,
-                ),
-              );
+              return Text(localizations.home);
             }
             final userData =
                 snapshot.data!.data() as Map<String, dynamic>? ?? {};
@@ -132,24 +133,21 @@ class HomePage extends StatelessWidget {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.home, color: Colors.green[900], size: 28),
+                const Icon(Icons.home, size: 28),
                 const SizedBox(width: 8),
-                Text(
-                  localizations.home,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Colors.green[900],
-                  ),
-                ),
+                Text(localizations.home),
               ],
             );
           },
         ),
-        iconTheme: IconThemeData(color: Colors.green[900]),
         actions: [
           IconButton(
-            icon: Icon(Icons.person, color: Colors.green[900]),
+            icon: const Icon(Icons.dark_mode),
+            onPressed: () => appState.toggleTheme(),
+            tooltip: 'Toggle Theme',
+          ),
+          IconButton(
+            icon: const Icon(Icons.person),
             onPressed: () {
               Navigator.push(
                 context,
@@ -213,22 +211,13 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          Text(
-                            localizations.savingEarth,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green[900],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                           Text(localizations.savingEarth,
+                               style: Theme.of(context).textTheme.titleLarge,
+                               textAlign: TextAlign.center),
                           const SizedBox(height: 8),
-                          Text(
-                            localizations.subtext,
-                            style: TextStyle(
-                                fontSize: 15, color: Colors.grey[700]),
-                            textAlign: TextAlign.center,
-                          ),
+                           Text(localizations.subtext,
+                               style: Theme.of(context).textTheme.bodyMedium,
+                               textAlign: TextAlign.center),
                         ],
                       ),
                     ),
@@ -359,7 +348,7 @@ class HomePage extends StatelessWidget {
                   // Display a friendly message if no pending reports are found.
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text("You have no pending reports."),
+                      content: Text(AppLocalizations.of(context)!.noPendingReports),
                       backgroundColor: Colors.green,
                     ),
                   );

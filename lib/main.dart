@@ -4,15 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_performance/firebase_performance.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 import 'home_page.dart';
 import 'login.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'state/app_state.dart';
+import 'theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -24,22 +21,21 @@ void main() async {
     print('Error initializing Firebase: $e');
   }
 
-  runApp(MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (_) => AppState(),
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<AppState>();
     return MaterialApp(
-      title: 'Ease Earth 🏃‍➡️🏃',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
-          brightness: Brightness.light,
-        ),
-      ),
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appName,
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
+      themeMode: appState.themeMode,
       localizationsDelegates: [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -47,6 +43,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      locale: appState.locale,
       home: UserHomePage(),
     );
   }

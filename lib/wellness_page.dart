@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'image_result_page.dart';
+import 'localization/app_localizations.dart';
 import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 
@@ -25,13 +26,14 @@ class _WellnessPageState extends State<WellnessPage> {
     final ImageSource? source = await showDialog<ImageSource>(
       context: context,
       builder: (BuildContext context) {
+        final l = AppLocalizations.of(context)!;
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
           backgroundColor: Colors.green[50],
           title: Text(
-            "Choose Image Source",
+            l.chooseImageSource,
             style: TextStyle(
               fontFamily: 'Roboto',
               fontWeight: FontWeight.bold,
@@ -54,7 +56,7 @@ class _WellnessPageState extends State<WellnessPage> {
                 ListTile(
                   leading: Icon(Icons.camera_alt, color: Colors.green[700]),
                   title: Text(
-                    "Camera",
+                    l.camera,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.green[900],
@@ -70,7 +72,7 @@ class _WellnessPageState extends State<WellnessPage> {
                 ListTile(
                   leading: Icon(Icons.photo_library, color: Colors.green[700]),
                   title: Text(
-                    "Gallery",
+                    l.gallery,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.green[900],
@@ -166,7 +168,8 @@ class _WellnessPageState extends State<WellnessPage> {
     String? apiKey = await _fetchAPIKey();
     if (apiKey == null) {
       setState(() => _isLoading = false);
-      _showUserMessage("This may take a while. Please try again later.");
+      final l = AppLocalizations.of(context)!;
+      _showUserMessage(l.retry);
       return;
     }
 
@@ -187,7 +190,7 @@ class _WellnessPageState extends State<WellnessPage> {
           setState(() {
             _isLoading = false;
           });
-          _showUserMessage("No labels found for this image. Try another image!");
+          _showUserMessage('No labels found for this image.');
           return;
         }
         List<String> extractedLabels =
@@ -212,7 +215,8 @@ class _WellnessPageState extends State<WellnessPage> {
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      _showUserMessage("This may take a while. Please try again later.");
+      final l = AppLocalizations.of(context)!;
+      _showUserMessage(l.retry);
       print("Error: $e");
     }
   }
@@ -244,6 +248,7 @@ class _WellnessPageState extends State<WellnessPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       // Keep the same functionality
       extendBodyBehindAppBar: true,
@@ -253,7 +258,7 @@ class _WellnessPageState extends State<WellnessPage> {
           children: [
             Icon(Icons.spa, color: Colors.white),
             SizedBox(width: 8),
-            Text("Wellness & Environment",
+            Text(l.wellnessTitle,
                 style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
           ],
         ),
@@ -298,7 +303,7 @@ class _WellnessPageState extends State<WellnessPage> {
                       ),
                       SizedBox(height: 20),
                       Text(
-                        "Analyzing Image...",
+                        l.analyzingImage,
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -332,7 +337,7 @@ class _WellnessPageState extends State<WellnessPage> {
                   children: [
                     // Title
                     Text(
-                      "Choose an Image",
+                      l.chooseImage,
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -373,7 +378,7 @@ class _WellnessPageState extends State<WellnessPage> {
                     ElevatedButton.icon(
                       onPressed: _pickImage,
                       icon: Icon(Icons.upload, color: Colors.white),
-                      label: Text("Select Image", style: TextStyle(color: Colors.white)),
+                      label: Text(l.selectImage, style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green[700],
                         padding: EdgeInsets.symmetric(horizontal: 25, vertical: 14),
@@ -402,7 +407,7 @@ class _WellnessPageState extends State<WellnessPage> {
                     // Motivational quote
                     SizedBox(height: 10),
                     Text(
-                      "“The earth does not belong to us: we belong to the earth.” 🌍",
+                      '“The earth does not belong to us: we belong to the earth.” 🌍',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,

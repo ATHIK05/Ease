@@ -12,6 +12,8 @@ import 'package:googleapis/datamigration/v1.dart';
 import 'package:path/path.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart'; // Add share_plus dependency
+import 'localization/app_localizations.dart';
+import 'widgets/app_top_bar.dart';
 
 class HelpPage extends StatelessWidget {
   final Map<String, dynamic> nearestOfficer;
@@ -371,79 +373,10 @@ class HelpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        title: Text(
-          "Help & Nearest Officer",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            letterSpacing: 1.2,
-            color: Colors.white,
-            shadows: [
-              Shadow(
-                blurRadius: 4.0,
-                color: Colors.black38,
-                offset: Offset(2, 2),
-              ),
-            ],
-          ),
-        ),
-        centerTitle: true,
-        elevation: 8,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.deepOrange.shade400,
-                Colors.orangeAccent.shade200,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(30),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 10,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              // Subtle decorative icon on the bottom left.
-              Positioned(
-                bottom: -20,
-                left: -20,
-                child: Icon(
-                  Icons.help_outline,
-                  size: 120,
-                  color: Colors.white.withOpacity(0.1),
-                ),
-              ),
-              // Subtle decorative icon on the top right.
-              Positioned(
-                top: -20,
-                right: -20,
-                child: Icon(
-                  Icons.location_on,
-                  size: 100,
-                  color: Colors.white.withOpacity(0.1),
-                ),
-              ),
-            ],
-          ),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30),
-          ),
-        ),
-      ),
+      appBar: AppTopBar(title: Text(l.helpNearestOfficer)),
       body: Stack(
         children: [
           // Background image from assets.
@@ -952,9 +885,9 @@ class _AnimatedFABColumnState extends State<AnimatedFABColumn> {
                     backgroundColor: Colors.orangeAccent,
                     elevation: 6,
                     icon: const Icon(Icons.map, color: Colors.white),
-                    label: const Text(
-                      'View on Map',
-                      style: TextStyle(color: Colors.white),
+                    label: Text(
+                      AppLocalizations.of(context)!.viewOnMap,
+                      style: const TextStyle(color: Colors.white),
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1000,12 +933,12 @@ class _AnimatedFABColumnState extends State<AnimatedFABColumn> {
                         alignment: Alignment.center,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.report, color: Colors.white),
-                            SizedBox(width: 8),
+                          children: [
+                            const Icon(Icons.report, color: Colors.white),
+                            const SizedBox(width: 8),
                             Text(
-                              "Report",
-                              style: TextStyle(
+                              AppLocalizations.of(context)!.report,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,

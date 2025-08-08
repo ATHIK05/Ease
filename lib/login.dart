@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'home_page.dart';
+import 'localization/app_localizations.dart';
 
 class LoginApp extends StatefulWidget {
   @override
@@ -61,6 +62,7 @@ class _LoginAppState extends State<LoginApp> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       body: Stack(
         children: [
@@ -124,7 +126,7 @@ class _LoginAppState extends State<LoginApp> {
 
                       // Welcome Text
                       Text(
-                        "Welcome to Evergreen 🌿",
+                        l.welcome,
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -136,7 +138,7 @@ class _LoginAppState extends State<LoginApp> {
 
                       // Subtext
                       Text(
-                        "Join us in making the world a greener place!",
+                        l.joinUs,
                         style: TextStyle(color: Colors.white70, fontSize: 16),
                         textAlign: TextAlign.center,
                       ),
@@ -153,8 +155,8 @@ class _LoginAppState extends State<LoginApp> {
                         ),
                         label: isLoading
                             ? CircularProgressIndicator(color: Colors.black)
-                            : Text(
-                          'Login with Google',
+                          : Text(
+                          l.loginWithGoogle,
                           style: TextStyle(color: Colors.black, fontSize: 16),
                         ),
                         style: ElevatedButton.styleFrom(

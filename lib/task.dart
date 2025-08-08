@@ -295,6 +295,7 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
   }
 
   Widget _buildHeader() {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.all(20),
       child: Column(
@@ -307,14 +308,14 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
               ),
               Expanded(
                 child: Text(
-                  "🌍 Eco Adventures",
-            style: TextStyle(
+                  l.ecoAdventures,
+                  style: TextStyle(
                     fontSize: 28,
-              fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                     color: Colors.green[800],
-            ),
-            textAlign: TextAlign.center,
-          ),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -323,7 +324,7 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
                   borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-                  "Level ${currentUnlockedLevel + 1}",
+                  "${AppLocalizations.of(context)!.level} ${currentUnlockedLevel + 1}",
               style: TextStyle(
                 color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -334,7 +335,7 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
       ),
           SizedBox(height: 10),
           Text(
-            "Complete missions to unlock new adventures!",
+            l.completeMissions,
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey[600],
@@ -349,6 +350,7 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
   Widget _buildProgressIndicator() {
     final completedTasks = taskLevels.where((task) => task.isCompleted).length;
     final progress = completedTasks / taskLevels.length;
+    final l = AppLocalizations.of(context)!;
     
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -358,7 +360,7 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-                "Progress",
+                l.progress,
             style: TextStyle(
                   fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -366,7 +368,7 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
             ),
           ),
           Text(
-                "$completedTasks/${taskLevels.length} completed",
+                "$completedTasks/${taskLevels.length} ${l.completed}",
             style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -555,7 +557,7 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
               ),
               child: Center(
                 child: Text(
-                    "Complete previous task to unlock!",
+                    AppLocalizations.of(context)!.completePrevTaskToUnlock,
                     style: TextStyle(
                     color: Colors.white,
                       fontWeight: FontWeight.bold,

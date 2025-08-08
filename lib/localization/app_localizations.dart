@@ -34,6 +34,15 @@ class AppLocalizations {
   String get edit => _localizedValues[locale.languageCode]!['edit']!;
   String get submit => _localizedValues[locale.languageCode]!['submit']!;
   String get retry => _localizedValues[locale.languageCode]!['retry']!;
+  String get phone => _localizedValues[locale.languageCode]!['phone']!;
+  String get selectLanguage => _localizedValues[locale.languageCode]!['select_language']!;
+  String get english => _localizedValues[locale.languageCode]!['english']!;
+  String get tamil => _localizedValues[locale.languageCode]!['tamil']!;
+  String get hindi => _localizedValues[locale.languageCode]!['hindi']!;
+  String get toggleTheme => _localizedValues[locale.languageCode]!['toggle_theme']!;
+  String get welcome => _localizedValues[locale.languageCode]!['welcome']!;
+  String get joinUs => _localizedValues[locale.languageCode]!['join_us']!;
+  String get loginWithGoogle => _localizedValues[locale.languageCode]!['login_with_google']!;
 
   // Home page translations
   String get savingEarth => _localizedValues[locale.languageCode]!['saving_earth']!;
@@ -52,6 +61,7 @@ class AppLocalizations {
   String get camera => _localizedValues[locale.languageCode]!['camera']!;
   String get gallery => _localizedValues[locale.languageCode]!['gallery']!;
   String get chooseImageSource => _localizedValues[locale.languageCode]!['choose_image_source']!;
+  String get noLabelsFound => _localizedValues[locale.languageCode]!['no_labels_found']!;
 
   // Task page translations
   String get ecoAdventures => _localizedValues[locale.languageCode]!['eco_adventures']!;
@@ -59,6 +69,8 @@ class AppLocalizations {
   String get progress => _localizedValues[locale.languageCode]!['progress']!;
   String get completed => _localizedValues[locale.languageCode]!['completed']!;
   String get continueAdventure => _localizedValues[locale.languageCode]!['continue_adventure']!;
+  String get level => _localizedValues[locale.languageCode]!['level']!;
+  String get completePrevTaskToUnlock => _localizedValues[locale.languageCode]!['complete_prev_task_to_unlock']!;
 
   // Game titles and descriptions
   String get oceanHero => _localizedValues[locale.languageCode]!['ocean_hero']!;
@@ -95,6 +107,30 @@ class AppLocalizations {
   String get markComplete => _localizedValues[locale.languageCode]!['mark_complete']!;
   String get clean => _localizedValues[locale.languageCode]!['clean']!;
   String get help => _localizedValues[locale.languageCode]!['help']!;
+  String get noPendingReports => _localizedValues[locale.languageCode]!['no_pending_reports']!;
+  String get myPendingReports => _localizedValues[locale.languageCode]!['my_pending_reports']!;
+  String get reportDetails => _localizedValues[locale.languageCode]!['report_details']!;
+  String get complaint => _localizedValues[locale.languageCode]!['complaint']!;
+  String get quantityLabel => _localizedValues[locale.languageCode]!['quantity_label']!;
+  String get weightPerKgLabel => _localizedValues[locale.languageCode]!['weight_per_kg_label']!;
+  String get statusLabel => _localizedValues[locale.languageCode]!['status_label']!;
+  String get loadingUserInfo => _localizedValues[locale.languageCode]!['loading_user_info']!;
+  String get unknownUser => _localizedValues[locale.languageCode]!['unknown_user']!;
+  String get reportedBy => _localizedValues[locale.languageCode]!['reported_by']!;
+  String get productAnalysis => _localizedValues[locale.languageCode]!['product_analysis']!;
+  String get productDetailsTab => _localizedValues[locale.languageCode]!['product_details_tab']!;
+  String get environmentalImpactTab => _localizedValues[locale.languageCode]!['environmental_impact_tab']!;
+  String get healthImpactTab => _localizedValues[locale.languageCode]!['health_impact_tab']!;
+  String get disposalMeasuresTab => _localizedValues[locale.languageCode]!['disposal_measures_tab']!;
+  String get analysisResult => _localizedValues[locale.languageCode]!['analysis_result']!;
+  String get ecoFriendlyInsights => _localizedValues[locale.languageCode]!['eco_friendly_insights']!;
+  String get disposeAndClean => _localizedValues[locale.languageCode]!['dispose_and_clean']!;
+  String get fetchingData => _localizedValues[locale.languageCode]!['fetching_data']!;
+  String get errorFetchingResponse => _localizedValues[locale.languageCode]!['error_fetching_response']!;
+  String get emergencyAssistance => _localizedValues[locale.languageCode]!['emergency_assistance']!;
+  String get helpNearestOfficer => _localizedValues[locale.languageCode]!['help_nearest_officer']!;
+  String get viewOnMap => _localizedValues[locale.languageCode]!['view_on_map']!;
+  String get report => _localizedValues[locale.languageCode]!['report']!;
 
   static const Map<String, Map<String, String>> _localizedValues = {
     'en': {
@@ -113,6 +149,15 @@ class AppLocalizations {
       'edit': 'Edit',
       'submit': 'Submit',
       'retry': 'Retry',
+      'phone': 'Phone',
+      'select_language': 'Select Your Language',
+      'english': 'English',
+      'tamil': 'Tamil',
+      'hindi': 'Hindi',
+      'toggle_theme': 'Toggle Theme',
+      'welcome': 'Welcome to Ease Earth 🌿',
+      'join_us': 'Join us in making the world a greener place!',
+      'login_with_google': 'Login with Google',
       'saving_earth': 'Saving Earth, One Step at a Time',
       'subtext': 'Take a step today towards a greener future 🌿🌍',
       'recycle_title': 'Recycle rather than dump!',
@@ -127,11 +172,14 @@ class AppLocalizations {
       'camera': 'Camera',
       'gallery': 'Gallery',
       'choose_image_source': 'Choose Image Source',
+      'no_labels_found': 'No labels found for this image.',
       'eco_adventures': '🌍 Eco Adventures',
       'complete_missions': 'Complete missions to unlock new adventures!',
       'progress': 'Progress',
       'completed': 'completed',
       'continue_adventure': 'Continue Adventure',
+      'level': 'Level',
+      'complete_prev_task_to_unlock': 'Complete previous task to unlock!',
       'ocean_hero': 'Ocean Hero',
       'ocean_hero_desc': 'Save marine life by cleaning the ocean',
       'sorting_champion': 'Sorting Champion',
@@ -160,6 +208,30 @@ class AppLocalizations {
       'mark_complete': 'Mark as Complete',
       'clean': 'Clean',
       'help': 'Help',
+      'no_pending_reports': 'You have no pending reports.',
+      'my_pending_reports': 'My Pending Reports',
+      'report_details': 'Report Details',
+      'complaint': 'Complaint',
+      'quantity_label': 'Quantity',
+      'weight_per_kg_label': 'Weight per Kg',
+      'status_label': 'Status',
+      'loading_user_info': 'Loading user info...',
+      'unknown_user': 'Unknown user',
+      'reported_by': 'Reported by',
+      'product_analysis': 'Product Analysis',
+      'product_details_tab': 'Product Details',
+      'environmental_impact_tab': 'Environmental Impact',
+      'health_impact_tab': 'Health Impact',
+      'disposal_measures_tab': 'Disposal Measures',
+      'analysis_result': 'Analysis Result',
+      'eco_friendly_insights': 'Eco-Friendly Insights',
+      'dispose_and_clean': 'Dispose & Clean!',
+      'fetching_data': 'Fetching data...',
+      'error_fetching_response': 'Error fetching response!',
+      'emergency_assistance': 'Emergency Assistance',
+      'help_nearest_officer': 'Help & Nearest Officer',
+      'view_on_map': 'View on Map',
+      'report': 'Report',
     },
     'ta': {
       'app_name': 'பூமி எளிமை',
@@ -177,6 +249,15 @@ class AppLocalizations {
       'edit': 'திருத்து',
       'submit': 'சமர்ப்பி',
       'retry': 'மீண்டும் முயற்சி',
+      'phone': 'தொலைபேசி',
+      'select_language': 'உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்',
+      'english': 'ஆங்கிலம்',
+      'tamil': 'தமிழ்',
+      'hindi': 'இந்தி',
+      'toggle_theme': 'தோற்றத்தை மாற்று',
+      'welcome': 'Ease Earth-க்கு வரவேற்பு 🌿',
+      'join_us': 'உலகை பசுமையாக்க நம்மோடு சேருங்கள்!',
+      'login_with_google': 'Google-ஐ பயன்படுத்தி உள்நுழைக',
       'saving_earth': 'பூமியை பாதுகாக்க, ஒவ்வொரு படியிலும்',
       'subtext': 'இன்று ஒரு படி முன்னேறி பசுமையான எதிர்காலத்தை நோக்கி 🌿🌍',
       'recycle_title': 'குப்பையை தூக்காமல் மறுசுழற்சி செய்யுங்கள்!',
@@ -191,11 +272,14 @@ class AppLocalizations {
       'camera': 'கேமரா',
       'gallery': 'கேலரி',
       'choose_image_source': 'படத்தின் மூலத்தை தேர்வு செய்யுங்கள்',
+      'no_labels_found': 'இந்த படத்திற்கு குறிச்சொற்கள் இல்லை.',
       'eco_adventures': '🌍 சூழல் சாகசங்கள்',
       'complete_missions': 'புதிய சாகசங்களை திறக்க பணிகளை முடிக்கவும்!',
       'progress': 'முன்னேற்றம்',
       'completed': 'முடிந்தது',
       'continue_adventure': 'சாகசத்தை தொடரவும்',
+      'level': 'நிலை',
+      'complete_prev_task_to_unlock': 'திறக்க முன் முந்தைய பணியை முடிக்கவும்!',
       'ocean_hero': 'கடல் வீரன்',
       'ocean_hero_desc': 'கடலை சுத்தம் செய்து கடல் உயிரினங்களை காப்பாற்றுங்கள்',
       'sorting_champion': 'வகைப்படுத்தும் சாம்பியன்',
@@ -224,6 +308,30 @@ class AppLocalizations {
       'mark_complete': 'முடிந்ததாக குறிக்கவும்',
       'clean': 'சுத்தம்',
       'help': 'உதவி',
+      'no_pending_reports': 'உங்களுக்கு நிலுவையில் எந்த அறிக்கைகளும் இல்லை.',
+      'my_pending_reports': 'எனது நிலுவை அறிக்கைகள்',
+      'report_details': 'அறிக்கை விவரங்கள்',
+      'complaint': 'புகார்',
+      'quantity_label': 'அளவு',
+      'weight_per_kg_label': 'கிலோ ஒன்றுக்கு எடை',
+      'status_label': 'நிலை',
+      'loading_user_info': 'பயனர் தகவல் ஏற்றப்படுகிறது...',
+      'unknown_user': 'அறியப்படாத பயனர்',
+      'reported_by': 'அறிக்கை செய்தவர்',
+      'product_analysis': 'தயாரிப்பு பகுப்பாய்வு',
+      'product_details_tab': 'தயாரிப்பு விவரங்கள்',
+      'environmental_impact_tab': 'சுற்றுச்சூழல் தாக்கம்',
+      'health_impact_tab': 'உடல்நலம் தாக்கம்',
+      'disposal_measures_tab': 'அகற்றும் நடவடிக்கைகள்',
+      'analysis_result': 'பகுப்பாய்வு முடிவு',
+      'eco_friendly_insights': 'சுற்றுச்சூழலுக்கு ஏற்ற அறிவுரைகள்',
+      'dispose_and_clean': 'அகற்று & சுத்தம் செய்!',
+      'fetching_data': 'தரவு பெறப்படுகிறது...',
+      'error_fetching_response': 'பதில் பெறதில் பிழை!',
+      'emergency_assistance': 'அவசர உதவி',
+      'help_nearest_officer': 'உதவி & அருகிலுள்ள அதிகாரி',
+      'view_on_map': 'வரைபடத்தில் காண்க',
+      'report': 'அறிக்கை',
     },
     'hi': {
       'app_name': 'पृथ्वी आसान',
@@ -241,6 +349,15 @@ class AppLocalizations {
       'edit': 'संपादित करें',
       'submit': 'जमा करें',
       'retry': 'पुनः प्रयास',
+      'phone': 'फ़ोन',
+      'select_language': 'अपनी भाषा चुनें',
+      'english': 'अंग्रेज़ी',
+      'tamil': 'तमिल',
+      'hindi': 'हिन्दी',
+      'toggle_theme': 'थीम बदलें',
+      'welcome': 'Ease Earth में आपका स्वागत है 🌿',
+      'join_us': 'दुनिया को हराभरा बनाने में हमारा साथ दें!',
+      'login_with_google': 'Google से लॉगिन करें',
       'saving_earth': 'एक कदम में पृथ्वी बचाएं',
       'subtext': 'आज हरित भविष्य की ओर एक कदम बढ़ाएं 🌿🌍',
       'recycle_title': 'कचरे को फेंकने के बजाय रिसाइकिल करें!',
@@ -255,11 +372,14 @@ class AppLocalizations {
       'camera': 'कैमरा',
       'gallery': 'गैलरी',
       'choose_image_source': 'छवि स्रोत चुनें',
+      'no_labels_found': 'इस छवि के लिए कोई लेबल नहीं मिले।',
       'eco_adventures': '🌍 पर्यावरण रोमांच',
       'complete_missions': 'नए रोमांच अनलॉक करने के लिए मिशन पूरे करें!',
       'progress': 'प्रगति',
       'completed': 'पूर्ण',
       'continue_adventure': 'रोमांच जारी रखें',
+      'level': 'स्तर',
+      'complete_prev_task_to_unlock': 'अनलॉक करने के लिए पिछला कार्य पूरा करें!',
       'ocean_hero': 'समुद्री नायक',
       'ocean_hero_desc': 'समुद्र की सफाई करके समुद्री जीवन बचाएं',
       'sorting_champion': 'छंटाई चैंपियन',
@@ -288,6 +408,30 @@ class AppLocalizations {
       'mark_complete': 'पूर्ण के रूप में चिह्नित करें',
       'clean': 'साफ',
       'help': 'मदद',
+      'no_pending_reports': 'आपके पास कोई लंबित रिपोर्ट नहीं है।',
+      'my_pending_reports': 'मेरी लंबित रिपोर्ट्स',
+      'report_details': 'रिपोर्ट विवरण',
+      'complaint': 'शिकायत',
+      'quantity_label': 'मात्रा',
+      'weight_per_kg_label': 'प्रति किग्रा वजन',
+      'status_label': 'स्थिति',
+      'loading_user_info': 'यूज़र जानकारी लोड हो रही है...',
+      'unknown_user': 'अज्ञात उपयोगकर्ता',
+      'reported_by': 'रिपोर्ट करने वाले',
+      'product_analysis': 'उत्पाद विश्लेषण',
+      'product_details_tab': 'उत्पाद विवरण',
+      'environmental_impact_tab': 'पर्यावरणीय प्रभाव',
+      'health_impact_tab': 'स्वास्थ्य प्रभाव',
+      'disposal_measures_tab': 'निपटान उपाय',
+      'analysis_result': 'विश्लेषण परिणाम',
+      'eco_friendly_insights': 'पर्यावरण-अनुकूल जानकारी',
+      'dispose_and_clean': 'निपटान करें और साफ करें!',
+      'fetching_data': 'डेटा प्राप्त किया जा रहा है...',
+      'error_fetching_response': 'प्रतिक्रिया प्राप्त करने में त्रुटि!',
+      'emergency_assistance': 'आपातकालीन सहायता',
+      'help_nearest_officer': 'मदद और निकटतम अधिकारी',
+      'view_on_map': 'मानचित्र पर देखें',
+      'report': 'रिपोर्ट',
     },
   };
 }
