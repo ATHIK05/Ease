@@ -32,8 +32,13 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _initializeAnimations();
-    _initializeTasks();
     _loadProgress();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initializeTasks();
   }
 
   void _initializeAnimations() {
@@ -215,12 +220,15 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
       final taskIndex = taskLevels.indexWhere((task) => task.id == taskId);
       if (taskIndex != -1) {
         taskLevels[taskIndex].isCompleted = true;
-        
         // Unlock next level
         if (taskIndex + 1 < taskLevels.length && currentUnlockedLevel == taskIndex) {
           currentUnlockedLevel = taskIndex + 1;
           taskLevels[taskIndex + 1].isUnlocked = true;
           _confettiController.play();
+          // Automatically start the next task after a short delay
+          Future.delayed(const Duration(milliseconds: 600), () {
+            _startTask(taskLevels[taskIndex + 1]);
+          });
         }
       }
     });
@@ -676,6 +684,8 @@ class TaskGameWrapper extends StatelessWidget {
       gameWidget = WaterConservationGame(onComplete: onComplete);
     } else if (gameWidget is EcoCraftGame) {
       gameWidget = EcoCraftGame(onComplete: onComplete);
+    } else if (gameWidget is AirPollutionGame) {
+      gameWidget = AirPollutionGame(onComplete: onComplete);
     }
     return Scaffold(
       appBar: AppBar(

@@ -253,11 +253,19 @@ class _DisposalPageState extends State<DisposalPage> {
     String description = "";
     List<String> tasks = [];
     bool isTaskSection = false;
+    String category = "";
 
     for (String line in lines) {
       String lowerLine = line.toLowerCase().trim();
 
-      // Check for the start of task section
+      // ✅ Extract Category from Description
+      RegExp categoryRegex = RegExp(r"category of ([a-zA-Z\s]+)", caseSensitive: false);
+      Match? match = categoryRegex.firstMatch(lowerLine);
+      if (match != null) {
+        category = match.group(1)?.trim() ?? "";
+      }
+
+      // ✅ Check for the start of task section
       if (lowerLine.contains("tasks to be taken:") ||
           lowerLine.contains("task to be taken:") ||
           lowerLine.contains("tasks to be taken") ||
@@ -274,9 +282,9 @@ class _DisposalPageState extends State<DisposalPage> {
         if (RegExp(r"^\d+\.$").hasMatch(line.trim())) {
           continue;
         }
-        if (RegExp(r"^\d+\.\s").hasMatch(line) ||
-            RegExp(r"^[IVXLCDM]+\.\s").hasMatch(line) ||
-            RegExp(r"^[-•]\s").hasMatch(line)) {
+        if (RegExp(r"^\d+\. ").hasMatch(line) || // For numeric tasks (e.g., 1. Task)
+            RegExp(r"^[IVXLCDM]+\. ").hasMatch(line) || // For Roman numeral tasks
+            RegExp(r"^[-•] ").hasMatch(line)) { // For bullet points
           tasks.add(line.substring(2).trim());
         } else if (line.isNotEmpty) {
           tasks.add(line.trim());
@@ -286,7 +294,11 @@ class _DisposalPageState extends State<DisposalPage> {
       }
     }
 
-    return {"description": description.trim(), "tasks": tasks};
+    return {
+      "description": description.trim(),
+      "tasks": tasks,
+      "category": category.isNotEmpty ? category : "Unknown"
+    };
   }
 
   int calculatePoints(String task, int count) {

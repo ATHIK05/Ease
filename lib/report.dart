@@ -12,6 +12,8 @@ class MyReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final Query reportsQuery = FirebaseFirestore.instance
         .collection('reports')
         .where('userId', isEqualTo: userId)
@@ -19,7 +21,7 @@ class MyReportsScreen extends StatelessWidget {
 
     final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppTopBar(title: Text(l.myPendingReports)),
+      appBar: AppTopBar(title: Text(l.myPendingReports, style: TextStyle(color: theme.appBarTheme.foregroundColor))),
       body: StreamBuilder<QuerySnapshot>(
         stream: reportsQuery.snapshots(),
         builder: (context, snapshot) {
@@ -27,7 +29,7 @@ class MyReportsScreen extends StatelessWidget {
             return Center(
                 child: Text(
                   '${l.error}: ${snapshot.error}',
-                  style: const TextStyle(color: Colors.red),
+                  style: TextStyle(color: theme.colorScheme.error),
                 ));
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -35,7 +37,7 @@ class MyReportsScreen extends StatelessWidget {
           }
           final docs = snapshot.data!.docs;
           if (docs.isEmpty) {
-            return Center(child: Text(l.noPendingReports));
+            return Center(child: Text(l.noPendingReports, style: TextStyle(color: theme.textTheme.bodyLarge?.color)));
           }
 
           return ListView.builder(
@@ -80,18 +82,21 @@ class MyReportsScreen extends StatelessWidget {
                 child: Card(
                   margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   elevation: 3,
+                  color: theme.cardColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Colors.green.shade100,
-                      child: const Icon(Icons.report, color: Colors.green),
+                      backgroundColor: isDark ? Colors.green.shade900 : Colors.green.shade100,
+                      child: Icon(Icons.report, color: isDark ? Colors.greenAccent : Colors.green),
                     ),
                     title: Text(
                       category,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: theme.textTheme.titleLarge?.color),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,26 +104,27 @@ class MyReportsScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           shortComplaint,
-                          style: const TextStyle(fontSize: 14),
+                          style: TextStyle(fontSize: 14, color: theme.textTheme.bodyMedium?.color),
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(Icons.calendar_today,
-                                size: 14, color: Colors.grey),
+                            Icon(Icons.calendar_today,
+                                size: 14, color: theme.iconTheme.color?.withOpacity(0.7)),
                             const SizedBox(width: 4),
                             Text(
                               dateStr,
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.grey),
+                              style: TextStyle(
+                                  fontSize: 12, color: theme.textTheme.bodySmall?.color),
                             ),
                           ],
                         ),
                       ],
                     ),
-                    trailing: const Icon(
+                    trailing: Icon(
                       Icons.arrow_forward_ios,
                       size: 16,
+                      color: theme.iconTheme.color,
                     ),
                   ),
                 ),
@@ -157,6 +163,8 @@ class ReportDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     // Decode the Base64 image.
     Uint8List? imageBytes;
     if (imageBase64.isNotEmpty) {
@@ -168,7 +176,7 @@ class ReportDetailScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppTopBar(title: Text(AppLocalizations.of(context)!.reportDetails)),
+      appBar: AppTopBar(title: Text(AppLocalizations.of(context)!.reportDetails, style: TextStyle(color: theme.appBarTheme.foregroundColor))),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -191,8 +199,8 @@ class ReportDetailScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               category,
-              style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 20, fontWeight: FontWeight.bold, color: theme.textTheme.titleLarge?.color),
             ),
             const Divider(thickness: 1.5),
             const SizedBox(height: 8),
@@ -201,54 +209,54 @@ class ReportDetailScreen extends StatelessWidget {
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.green.shade700),
+                  color: isDark ? Colors.greenAccent : Colors.green.shade700),
             ),
             const SizedBox(height: 4),
             Text(
               complaintText,
-              style: const TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                const Icon(Icons.confirmation_number, color: Colors.black54),
+                Icon(Icons.confirmation_number, color: theme.iconTheme.color),
                 const SizedBox(width: 8),
                 Text(
                   '${AppLocalizations.of(context)!.quantityLabel}: $quantity',
-                  style: const TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.scale, color: Colors.black54),
+                Icon(Icons.scale, color: theme.iconTheme.color),
                 const SizedBox(width: 8),
                 Text(
                   '${AppLocalizations.of(context)!.weightPerKgLabel}: $weightPerKg',
-                  style: const TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.calendar_today, color: Colors.black54),
+                Icon(Icons.calendar_today, color: theme.iconTheme.color),
                 const SizedBox(width: 8),
                 Text(
                   date,
-                  style: const TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.info_outline, color: Colors.black54),
+                Icon(Icons.info_outline, color: theme.iconTheme.color),
                 const SizedBox(width: 8),
                 Text(
                   '${AppLocalizations.of(context)!.statusLabel}: $status',
-                  style: const TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
                 ),
               ],
             ),
@@ -262,13 +270,13 @@ class ReportDetailScreen extends StatelessWidget {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                    return Text(
                      AppLocalizations.of(context)!.loadingUserInfo,
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
                   );
                 }
                 if (!snapshot.hasData || !snapshot.data!.exists) {
                    return Text(
                      AppLocalizations.of(context)!.unknownUser,
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
                   );
                 }
                 final userData =
@@ -276,11 +284,11 @@ class ReportDetailScreen extends StatelessWidget {
                 String userName = userData['name'] ?? "Unknown";
                 return Row(
                   children: [
-                    const Icon(Icons.person, color: Colors.black54),
+                    Icon(Icons.person, color: theme.iconTheme.color),
                     const SizedBox(width: 8),
                     Text(
                       '${AppLocalizations.of(context)!.reportedBy}: $userName',
-                      style: const TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
                     ),
                   ],
                 );

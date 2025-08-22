@@ -112,10 +112,12 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final appState = context.watch<AppState>();
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
       appBar: AppTopBar(
         leading: IconButton(
-          icon: const Icon(Icons.translate),
+          icon: Icon(Icons.translate, color: theme.iconTheme.color),
           onPressed: () => _showLanguageDialog(context),
         ),
         title: StreamBuilder<DocumentSnapshot>(
@@ -125,7 +127,7 @@ class HomePage extends StatelessWidget {
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return Text(localizations.home);
+              return Text(localizations.home, style: TextStyle(color: theme.textTheme.titleLarge?.color));
             }
             final userData =
                 snapshot.data!.data() as Map<String, dynamic>? ?? {};
@@ -133,21 +135,21 @@ class HomePage extends StatelessWidget {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.home, size: 28),
+                Icon(Icons.home, size: 28, color: theme.iconTheme.color),
                 const SizedBox(width: 8),
-                Text(localizations.home),
+                Text(localizations.home, style: TextStyle(color: theme.textTheme.titleLarge?.color)),
               ],
             );
           },
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.dark_mode),
+            icon: Icon(Icons.dark_mode, color: theme.iconTheme.color),
             onPressed: () => appState.toggleTheme(),
             tooltip: 'Toggle Theme',
           ),
           IconButton(
-            icon: const Icon(Icons.person),
+            icon: Icon(Icons.person, color: theme.iconTheme.color),
             onPressed: () {
               Navigator.push(
                 context,
@@ -168,10 +170,10 @@ class HomePage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(
+            return Center(
               child: Text(
                 "No user data found!",
-                style: TextStyle(color: Colors.black87),
+                style: TextStyle(color: theme.textTheme.bodyLarge?.color),
               ),
             );
           }
@@ -180,10 +182,10 @@ class HomePage extends StatelessWidget {
           String language = userData['language'] ?? "English";
           return AnimatedBackground(
             colors: [
-              Colors.green.shade100,
-              Colors.blue.shade50,
-              Colors.yellow.shade50,
-              Colors.white,
+              isDark ? Colors.green.shade900 : Colors.green.shade100,
+              isDark ? Colors.blueGrey.shade900 : Colors.blue.shade50,
+              isDark ? Colors.yellow.shade900 : Colors.yellow.shade50,
+              isDark ? Colors.black : Colors.white,
             ],
             child: Stack(
             children: [
@@ -192,7 +194,7 @@ class HomePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Container(
-                      color: Colors.white,
+                      color: theme.scaffoldBackgroundColor,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 24),
                       child: Column(
@@ -200,31 +202,39 @@ class HomePage extends StatelessWidget {
                           PulsingWidget(
                             child: CircleAvatar(
                             radius: 50,
-                            backgroundColor: Colors.white,
+                            backgroundColor: theme.scaffoldBackgroundColor,
                             backgroundImage:
                             AssetImage('lib/assets/earth.jpg'),
-                            onBackgroundImageError: (_, __) => const Icon(
+                            onBackgroundImageError: (_, __) => Icon(
                               Icons.image,
                               size: 50,
-                              color: Colors.grey,
+                              color: theme.iconTheme.color,
                             ),
                             ),
                           ),
                           const SizedBox(height: 16),
-                           Text(localizations.savingEarth,
-                               style: Theme.of(context).textTheme.titleLarge,
-                               textAlign: TextAlign.center),
+                          Text(
+                            localizations.savingEarth,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                                  color: isDark ? Colors.greenAccent : Colors.green,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
                           const SizedBox(height: 8),
-                           Text(localizations.subtext,
-                               style: Theme.of(context).textTheme.bodyMedium,
-                               textAlign: TextAlign.center),
+                          Text(
+                            localizations.subtext,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: isDark ? Colors.greenAccent : Colors.green,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
                     ),
                     Container(
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Colors.white, Colors.transparent],
+                          colors: [theme.scaffoldBackgroundColor, Colors.transparent],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ),
@@ -251,8 +261,8 @@ class HomePage extends StatelessWidget {
                                   "recycle",
                                   localizations.recycleTitle,
                                   localizations.recycleSubtitle,
-                                  Colors.green[100]!,
-                                  Colors.green[800]!,
+                                  isDark ? Colors.green[900]! : Colors.green[100]!,
+                                  isDark ? Colors.greenAccent : Colors.green[800]!,
                                   language,
                                 ),
                                 ),
@@ -267,8 +277,8 @@ class HomePage extends StatelessWidget {
                                   "daily",
                                   localizations.dailyChallengeTitle,
                                   localizations.dailyChallengeSubtitle,
-                                  Colors.blue[100]!,
-                                  Colors.blue[800]!,
+                                  isDark ? Colors.blueGrey[900]! : Colors.blue[100]!,
+                                  isDark ? Colors.blueAccent : Colors.blue[800]!,
                                   language,
                                 ),
                                 ),
@@ -280,11 +290,11 @@ class HomePage extends StatelessWidget {
                                 _buildFeatureCard(
                                   context,
                                   Icons.track_changes,
-                                  "wellness2",
+                                  "wellness",
                                   localizations.wellnessTitle,
                                   localizations.wellnessSubtitle,
-                                  Colors.green[100]!,
-                                  Colors.blue[800]!,
+                                  isDark ? Colors.green[900]! : Colors.green[100]!,
+                                  isDark ? Colors.blueAccent : Colors.blue[800]!,
                                   language,
                                 ),
                                 ),
@@ -307,7 +317,7 @@ class HomePage extends StatelessWidget {
       bottomNavigationBar: Container(
         height: 60,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.bottomAppBarTheme.color ?? (isDark ? Colors.black : Colors.white),
           boxShadow: [
             BoxShadow(
               color: Colors.black12,
@@ -320,19 +330,15 @@ class HomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             IconButton(
-              icon: Icon(Icons.home, color: Colors.green[900]),
-              onPressed: () {
-
-              },
+              icon: Icon(Icons.home, color: isDark ? Colors.greenAccent : Colors.green[900]),
+              onPressed: () {},
             ),
             IconButton(
-              icon: Icon(Icons.request_page_outlined, color: Colors.green[900]),
-              onPressed: () {
-
-              },
+              icon: Icon(Icons.request_page_outlined, color: isDark ? Colors.greenAccent : Colors.green[900]),
+              onPressed: () {},
             ),
             IconButton(
-              icon: Icon(Icons.incomplete_circle, color: Colors.green[900]),
+              icon: Icon(Icons.incomplete_circle, color: isDark ? Colors.greenAccent : Colors.green[900]),
               onPressed: () async {
                 // Get the current logged in user's id.
                 final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
@@ -348,8 +354,8 @@ class HomePage extends StatelessWidget {
                   // Display a friendly message if no pending reports are found.
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(AppLocalizations.of(context)!.noPendingReports),
-                      backgroundColor: Colors.green,
+                      content: Text(AppLocalizations.of(context)!.noPendingReports, style: TextStyle(color: theme.snackBarTheme.contentTextStyle?.color)),
+                      backgroundColor: theme.snackBarTheme.backgroundColor,
                     ),
                   );
                 } else {

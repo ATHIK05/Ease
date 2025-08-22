@@ -5,9 +5,6 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'image_result_page.dart';
-import 'localization/app_localizations.dart';
-import 'package:image/image.dart' as img;
-import 'dart:typed_data';
 
 class WellnessPage extends StatefulWidget {
   @override
@@ -26,14 +23,13 @@ class _WellnessPageState extends State<WellnessPage> {
     final ImageSource? source = await showDialog<ImageSource>(
       context: context,
       builder: (BuildContext context) {
-        final l = AppLocalizations.of(context)!;
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
           backgroundColor: Colors.green[50],
           title: Text(
-            l.chooseImageSource,
+            "Choose Image Source",
             style: TextStyle(
               fontFamily: 'Roboto',
               fontWeight: FontWeight.bold,
@@ -56,7 +52,7 @@ class _WellnessPageState extends State<WellnessPage> {
                 ListTile(
                   leading: Icon(Icons.camera_alt, color: Colors.green[700]),
                   title: Text(
-                    l.camera,
+                    "Camera",
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.green[900],
@@ -72,7 +68,7 @@ class _WellnessPageState extends State<WellnessPage> {
                 ListTile(
                   leading: Icon(Icons.photo_library, color: Colors.green[700]),
                   title: Text(
-                    l.gallery,
+                    "Gallery",
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.green[900],
@@ -108,133 +104,64 @@ class _WellnessPageState extends State<WellnessPage> {
     }
   }
 
-
-  Future<String?> _fetchAPIKey() async {
-    try {
-      print("🔄 Fetching API Keys from Firestore...");
-      DocumentSnapshot<Map<String, dynamic>> doc = await FirebaseFirestore.instance
-          .collection("company")
-          .doc("G1HhRecZtrfP72rxEdTI") // Adjust doc ID if needed
-          .get();
-
-      if (doc.exists && doc.data() != null && doc.data()!.containsKey("api")) {
-        List<String> apiKeys = List<String>.from(doc.data()!["api"]);
-        if (apiKeys.isEmpty) {
-          print("❌ No API keys available in Firestore.");
-          return null;
-        }
-
-        for (String key in apiKeys) {
-          print("🔍 Testing API Key: $key");
-          bool success = await _testAPIKey(key);
-          if (success) {
-            print("✅ Found a working API Key: $key");
-            return key; // Return the first valid key
-          }
-        }
-        print("❌ No valid API keys found!");
-        return null;
-      } else {
-        print("❌ API Key array not found in Firestore!");
-      }
-    } catch (e) {
-      print("⚠️ Error fetching API Key: $e");
-    }
-    return null; // Return null if all keys fail
-  }
-
-  Future<bool> _testAPIKey(String apiKey) async {
-    try {
-      var url = Uri.parse("https://label-image.p.rapidapi.com/detect-label");
-      var response = await http.post(url, headers: {
-        "X-RapidAPI-Key": apiKey,
-        "Content-Type": "application/json"
-      });
-
-      print("🔍 Response for $apiKey: ${response.statusCode}");
-      return response.statusCode == 200; // Return true if valid
-    } catch (e) {
-      print("⚠️ Error testing API Key: $e");
-    }
-    return false; // Return false if failed
-  }
-
   Future<void> _fetchImageDescription(File image) async {
-    setState(() => _isLoading = true);
-
-    // Compress the image before sending
-    File compressedImage = await _compressImage(image);
-
-    String? apiKey = await _fetchAPIKey();
-    if (apiKey == null) {
-      setState(() => _isLoading = false);
-      final l = AppLocalizations.of(context)!;
-      _showUserMessage(l.retry);
-      return;
-    }
-
-    var url = Uri.parse("https://label-image.p.rapidapi.com/detect-label");
+  setState(() => _isLoading = true);
+  try {
+    var url = Uri.parse("https://SanmathiSethu06-ObjectDetectionAPI.hf.space/detect");
     var request = http.MultipartRequest("POST", url)
-      ..headers["X-RapidAPI-Key"] = apiKey
-      ..files.add(await http.MultipartFile.fromPath("image", compressedImage.path));
+      ..files.add(await http.MultipartFile.fromPath("image", image.path));
+    var response = await request.send();
+    var responseBody = await response.stream.bytesToString();
 
-    try {
-      var response = await request.send();
-      var responseBody = await response.stream.bytesToString();
+    if (response.statusCode == 200) {
+      var data = jsonDecode(responseBody);
+      final labelsRaw = data['labels'];
+      final countRaw = data['count'];
+      if (labelsRaw != null && labelsRaw is Map) {
+        final labelsMap = Map<String, dynamic>.from(labelsRaw);
 
-      if (response.statusCode == 200) {
-        print("API Response: $responseBody");
-        var data = jsonDecode(responseBody);
-        List<dynamic>? labelsList = data["body"]?["labels"];
-        if (labelsList == null || labelsList.isEmpty) {
-          setState(() {
-            _isLoading = false;
-          });
-          _showUserMessage('No labels found for this image.');
-          return;
-        }
-        List<String> extractedLabels =
-          labelsList.map((label) => label["description"].toString()).toList();
-        Map<String, dynamic> formattedApiResponse = {
-          "body": {
-            "labels": extractedLabels
-          }
+        // ✅ Extract detected labels
+        final detectedLabels = labelsMap.keys.toList();
+
+        // ✅ Build final map { "labels": ["Bottle", "Drink", "Food"] }
+        final descriptionMap = {
+          "labels": detectedLabels,
+          "count": countRaw,
         };
+
         setState(() {
-          _isLoading = false; // Ensure UI updates correctly
+          _isLoading = false;
+          _imageDescription = detectedLabels.isNotEmpty
+              ? detectedLabels.join(", ")
+              : "No objects detected.";
         });
+
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                ImageResultPage(image: image, descriptionText: formattedApiResponse),
+            builder: (context) => ImageResultPage(
+              image: image,
+              descriptionText: descriptionMap, // 👈 Pass final map here
+            ),
           ),
         );
       } else {
-        throw Exception("API Request failed.");
+        setState(() {
+          _isLoading = false;
+          _imageDescription = "No objects detected.";
+        });
+        _showUserMessage("No labels found, cannot fetch data.");
       }
-    } catch (e) {
+    } else {
       setState(() => _isLoading = false);
-      final l = AppLocalizations.of(context)!;
-      _showUserMessage(l.retry);
-      print("Error: $e");
+      _showUserMessage("API Request failed.");
     }
+  } catch (e) {
+    setState(() => _isLoading = false);
+    _showUserMessage("This may take a while. Please try again later.");
   }
+}
 
-  // Compress image to max 800x800 and save to temp file
-  Future<File> _compressImage(File file) async {
-    Uint8List bytes = await file.readAsBytes();
-    img.Image? image = img.decodeImage(bytes);
-    if (image == null) return file;
-    // Resize if needed
-    img.Image resized = img.copyResize(image, width: 800, height: 800, interpolation: img.Interpolation.average);
-    // Encode as JPEG with quality 85
-    List<int> jpg = img.encodeJpg(resized, quality: 85);
-    // Save to temp file
-    String tempPath = file.path.replaceFirst('.jpg', '_compressed.jpg').replaceFirst('.png', '_compressed.jpg');
-    File compressed = await File(tempPath).writeAsBytes(jpg);
-    return compressed;
-  }
 
   void _showUserMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -248,7 +175,6 @@ class _WellnessPageState extends State<WellnessPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
     return Scaffold(
       // Keep the same functionality
       extendBodyBehindAppBar: true,
@@ -258,7 +184,7 @@ class _WellnessPageState extends State<WellnessPage> {
           children: [
             Icon(Icons.spa, color: Colors.white),
             SizedBox(width: 8),
-            Text(l.wellnessTitle,
+            Text("Wellness & Environment",
                 style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
           ],
         ),
@@ -303,7 +229,7 @@ class _WellnessPageState extends State<WellnessPage> {
                       ),
                       SizedBox(height: 20),
                       Text(
-                        l.analyzingImage,
+                        "Analyzing Image...",
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -337,7 +263,7 @@ class _WellnessPageState extends State<WellnessPage> {
                   children: [
                     // Title
                     Text(
-                      l.chooseImage,
+                      "Choose an Image",
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -378,7 +304,7 @@ class _WellnessPageState extends State<WellnessPage> {
                     ElevatedButton.icon(
                       onPressed: _pickImage,
                       icon: Icon(Icons.upload, color: Colors.white),
-                      label: Text(l.selectImage, style: TextStyle(color: Colors.white)),
+                      label: Text("Select Image", style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green[700],
                         padding: EdgeInsets.symmetric(horizontal: 25, vertical: 14),
@@ -407,7 +333,7 @@ class _WellnessPageState extends State<WellnessPage> {
                     // Motivational quote
                     SizedBox(height: 10),
                     Text(
-                      '“The earth does not belong to us: we belong to the earth.” 🌍',
+                      "“The earth does not belong to us: we belong to the earth.” 🌍",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,

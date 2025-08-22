@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'disposal.dart';
-import 'localization/app_localizations.dart';
 class ImageResultPage extends StatefulWidget {
   final File image;
   final Map<String, dynamic> descriptionText;
@@ -23,7 +22,7 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
   List<String> _labels = [];
   bool _isScrolled = false; // Track scroll state
   late ScrollController _scrollController;
-
+  int _count=0;
   @override
   void initState() {
     super.initState();
@@ -33,42 +32,35 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
   }
 
   void _extractLabels() {
-    try {
-      print("🔍 Raw JSON Data: ${widget.descriptionText}");
+  try {
+    print("🔍 Raw JSON Data: ${widget.descriptionText}");
 
-      var body = widget.descriptionText["body"];
-      print("📦 Extracted Body: $body");
+    var labelsRaw = widget.descriptionText["labels"];
+    print("📦 Extracted Labels Raw: $labelsRaw");
 
-      if (body != null && body is Map<String, dynamic> && body.containsKey("labels")) {
-        var labelsList = body["labels"];
-        print("📝 Labels List Structure: ${jsonEncode(labelsList)}");
-
-        if (labelsList is List<String>) {
-          setState(() {
-            _labels = labelsList.toSet().toList();
-          });
-          print("✅ Final Extracted Labels: $_labels");
-        } else {
-          print("❌ Error: 'labelsList' is not a list of strings!");
-          setState(() {
-            _labels = [];
-            _responseText = "No labels found!";
-          });
-        }
-      } else {
-        print("❌ Error: 'body' does not contain 'labels'!");
-        setState(() {
-          _labels = [];
-          _responseText = "No labels found!";
-        });
-      }
-    } catch (e) {
-      print("⚠️ Label Extraction Error: $e");
+    if (labelsRaw != null && labelsRaw is List) {
+      final labelsList = List<String>.from(labelsRaw);
+      setState(() {
+        _labels = labelsList.toSet().toList();
+        _count = widget.descriptionText["count"] ?? 0;
+      });
+      print("✅ Final Extracted Labels: $_labels");
+    } else {
+      print("❌ Error: 'labels' is not a valid list!");
       setState(() {
         _labels = [];
-        _responseText = "Error extracting labels.";
+        _count = 0;
+        _responseText = "No labels found!";
       });
     }
+  } catch (e) {
+    print("⚠️ Label Extraction Error: $e");
+    setState(() {
+      _labels = [];
+      _count = 0;
+      _responseText = "Error extracting labels.";
+    });
+  }
   }
 
   /// Fetch API Key from Firestore document "conversationllama"
@@ -213,7 +205,6 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
     return Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
@@ -235,7 +226,7 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    l.productAnalysis,
+                    "Product Analysis",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
@@ -291,14 +282,14 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
                 unselectedLabelColor: Colors.grey,
                 indicatorColor: Colors.green[700],
                 onTap: (index) {
-                  List<String> queries = [l.productDetailsTab, l.environmentalImpactTab, l.healthImpactTab, l.disposalMeasuresTab];
+                  List<String> queries = ["Product Details", "Environmental Impact", "Health Impact", "Disposal Measures"];
                   _fetchData(queries[index]);
                 },
                 tabs: [
-                  Tab(icon: Icon(Icons.info_outline, color: Colors.green[800]), text: l.productDetailsTab),
-                  Tab(icon: Icon(Icons.eco, color: Colors.green[800]), text: l.environmentalImpactTab),
-                  Tab(icon: Icon(Icons.health_and_safety, color: Colors.green[800]), text: l.healthImpactTab),
-                  Tab(icon: Icon(Icons.delete_outline, color: Colors.green[800]), text: l.disposalMeasuresTab),
+                  Tab(icon: Icon(Icons.info_outline, color: Colors.green[800]), text: "Product Details"),
+                  Tab(icon: Icon(Icons.eco, color: Colors.green[800]), text: "Environmental Impact"),
+                  Tab(icon: Icon(Icons.health_and_safety, color: Colors.green[800]), text: "Health Impact"),
+                  Tab(icon: Icon(Icons.delete_outline, color: Colors.green[800]), text: "Disposal Measures"),
                 ],
               ),
             ),
@@ -332,7 +323,7 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
                             Icon(Icons.insights, color: Colors.green[900], size: 28),
                             SizedBox(width: 8),
                             Text(
-                              l.analysisResult,
+                              "Analysis Result",
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -378,13 +369,13 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => DisposalPage(responseText: _responseText,image:widget.image),
+                                    builder: (context) => DisposalPage(responseText: _responseText,image:widget.image,count: _count,),
                                   ),
                                 );
                               },
                               icon: Icon(Icons.battery_saver, color: Colors.white),
                               label: Text(
-                                ' ${l.disposeAndClean}',
+                                " Dispose & Clean!",
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Colors.white),
                               ),
                               style: ElevatedButton.styleFrom(
@@ -406,7 +397,7 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
                             Icon(Icons.eco, color: Colors.green[700], size: 24),
                             SizedBox(width: 4),
                             Text(
-                              l.ecoFriendlyInsights,
+                              "Eco-Friendly Insights",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,

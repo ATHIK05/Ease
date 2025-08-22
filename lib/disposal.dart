@@ -17,7 +17,8 @@ import 'help.dart';
 class DisposalPage extends StatefulWidget {
   final String responseText;
   final File image;
-  DisposalPage({required this.responseText,required this.image});
+  final int count;
+  DisposalPage({required this.responseText, required this.image, required this.count});
 
   @override
   _DisposalPageState createState() => _DisposalPageState();
@@ -37,6 +38,14 @@ class _DisposalPageState extends State<DisposalPage> {
   int visibleLines = 4;
   late List<String> youtubeLinks;
   late String category;
+
+  // Add your high-complexity labels here
+  final List<String> highComplexityLabels = [
+    "tin", "coke", "bottle", "steel", "can", "aluminum", "glass", "plastic", "electronics"
+  ];
+
+  late List<String> detectedLabels;
+
   @override
   void initState() {
     super.initState();
@@ -46,15 +55,32 @@ class _DisposalPageState extends State<DisposalPage> {
     Map<String, dynamic> extractedData = extractDescriptionAndTasks(widget.responseText);
     description = extractedData["description"];
     youtubeLinks = extractYouTubeLinks(description);
-
     tasks = extractedData["tasks"];
+    category = extractedData["category"];
 
-    // ✅ Store the category in the category variable
-    category = extractedData["category"]; // 👈 Store category
+    // Try to extract detected labels from responseText (if present)
+    detectedLabels = extractDetectedLabels(widget.responseText);
 
     for (var task in tasks) {
       completedTasks[task] = false;
     }
+  }
+
+  // Utility to extract detected labels from responseText (if present)
+  List<String> extractDetectedLabels(String text) {
+    // Try to find a line like: "labels: [Bottle, Drink, Food]"
+    final RegExp reg = RegExp(r'labels\s*:\s*\[([^\]]+)\]', caseSensitive: false);
+    final match = reg.firstMatch(text);
+    if (match != null) {
+      return match.group(1)!.split(',').map((e) => e.trim().toLowerCase()).toList();
+    }
+    return [];
+  }
+
+  bool get isHighComplexity {
+    // If any detected label matches a high-complexity label, return true
+    return detectedLabels.any((label) =>
+      highComplexityLabels.any((complex) => label.contains(complex)));
   }
 
   @override
@@ -178,7 +204,7 @@ class _DisposalPageState extends State<DisposalPage> {
       }
     });
 
-    // If no keyword matches, return default videos.
+    // If rkeyword matches, return default videos.
     if (resultLinks.isEmpty) {
       return keywordVideos['default']!;
     }
@@ -305,7 +331,9 @@ class _DisposalPageState extends State<DisposalPage> {
 
   int calculatePoints(String task) {
     List<String> eWasteItems = ["battery", "circuit", "mobile", "laptop", "chip"];
-    return eWasteItems.any((item) => task.toLowerCase().contains(item)) ? 30 : 10;
+    int basePoints = eWasteItems.any((item) => task.toLowerCase().contains(item)) ? 30 : 10;
+    // Multiply by count of detected items
+    return basePoints * (widget.count > 0 ? widget.count : 1);
   }
 
   void markTaskComplete(String task) {
@@ -322,17 +350,66 @@ class _DisposalPageState extends State<DisposalPage> {
     });
   }
 
-
   void handleCompletion() async {
     if (completedTasks.values.every((completed) => completed)) {
-      // Save the total score and task completion date to Firestore
-      await _storeCompletionData();
-      _confettiController.play();
-      //showSuccessDialog(context, totalScore);
+      if (isHighComplexity) {
+        // Only for high-complexity products, ask for quantity and after-image
+        await _storeCompletionData();
+        _confettiController.play();
+      } else {
+        // For simple products, just show points and success
+        await _storeSimpleCompletion();
+        _confettiController.play();
+        showSuccessDialog(context, totalScore);
+      }
     } else {
       showIncompleteDialog(context);
     }
   }
+
+  // For simple products, just update points and streak, no verification
+  Future<void> _storeSimpleCompletion() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+      final docSnapshot = await userDoc.get();
+
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data()!;
+        final lastCompletionTimestamp = data['lastTaskCompletion'];
+        DateTime? lastCompletion;
+        if (lastCompletionTimestamp != null && lastCompletionTimestamp is Timestamp) {
+          lastCompletion = lastCompletionTimestamp.toDate();
+        }
+        final currentStreak = data['streakCount'] ?? 0;
+        final now = DateTime.now();
+        int updatedStreak = currentStreak;
+        if (lastCompletion != null) {
+          if (now.difference(lastCompletion).inDays == 1) {
+            updatedStreak += 1;
+          } else if (now.difference(lastCompletion).inDays > 1) {
+            updatedStreak = 1;
+          }
+        } else {
+          updatedStreak = 1;
+        }
+        await userDoc.update({
+          'lastTaskCompletion': now,
+          'streakCount': updatedStreak,
+          'status': 'completed',
+          'points': FieldValue.increment(totalScore),
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Points added successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
 // For converting image to bytes
   Future<void> _storeCompletionData() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -602,23 +679,22 @@ class _DisposalPageState extends State<DisposalPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF0f9d58), Color(0xFF43e97b), Color(0xFF38f9d7)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+              colors: [Colors.green.shade900, Colors.green.shade500],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
             borderRadius: BorderRadius.vertical(
               bottom: Radius.circular(40),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black26,
+                color: Colors.black38,
                 offset: Offset(0, 4),
                 blurRadius: 8,
               ),
@@ -634,14 +710,14 @@ class _DisposalPageState extends State<DisposalPage> {
                   Text(
                     "Disposal Measures",
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       shadows: [
                         Shadow(
                           offset: Offset(2, 2),
                           blurRadius: 4,
-                          color: Colors.black38,
+                          color: Colors.black45,
                         )
                       ],
                     ),
@@ -653,27 +729,30 @@ class _DisposalPageState extends State<DisposalPage> {
         ),
         centerTitle: true,
       ),
-      body: Stack(
+        body: Stack(
         children: [
-          // Evergreen gradient background
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF0f9d58), Color(0xFF43e97b), Color(0xFF38f9d7), Colors.white],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  stops: [0.0, 0.4, 0.8, 1.0],
+                image: DecorationImage(
+                  image: AssetImage('lib/assets/ease.jpg'),
+                  fit: BoxFit.cover,
                 ),
               ),
-            ),
-          ),
-          // Soft glassmorphic overlay for eco effect
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
               child: Container(
-                color: Colors.white.withOpacity(0.05),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white,
+                      Colors.white.withOpacity(0.9),
+                      Colors.white.withOpacity(0.7),
+                      Colors.transparent,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.0, 0.3, 0.6, 1.0],
+                  ),
+                ),
               ),
             ),
           ),
@@ -684,72 +763,63 @@ class _DisposalPageState extends State<DisposalPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Section headers and cards
                   Row(
                     children: [
-                      Icon(FontAwesomeIcons.leaf, color: Color(0xFF0f9d58), size: 28),
+                      Icon(FontAwesomeIcons.leaf, color: Colors.green[800], size: 28),
                       SizedBox(width: 10),
                       Text("Why is this Important?",
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0f9d58))),
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green[800])),
                       IconButton(
-                        icon: Icon(Icons.volume_up, color: Color(0xFF0f9d58), size: 28),
+                        icon: Icon(Icons.volume_up, color: Colors.green[800], size: 28),
                         onPressed: () async {
+                          // Optionally configure language and pitch:
                           await flutterTts.setLanguage("en-US");
                           await flutterTts.setPitch(1.0);
+                          // Speak out the description text
                           await flutterTts.speak(description);
                         },
                       ),
                     ],
                   ),
                   SizedBox(height: 10),
-                  // Description with glass card
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white.withOpacity(0.7),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.green.withOpacity(0.08),
-                          blurRadius: 12,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    padding: EdgeInsets.all(16),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final textSpan = TextSpan(
-                          text: description,
-                          style: TextStyle(fontSize: 16, color: Colors.grey[800]),
-                        );
-                        final textPainter = TextPainter(
-                          text: textSpan,
-                          maxLines: visibleLines,
-                          textDirection: TextDirection.ltr,
-                        )..layout(maxWidth: constraints.maxWidth);
-                        final isOverflowing = textPainter.didExceedMaxLines;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              description,
-                              style: TextStyle(fontSize: 16, color: Colors.grey[800]),
-                              maxLines: visibleLines,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (isOverflowing)
-                              TextButton(
-                                onPressed: showMore,
-                                child: Text(
-                                  "Read More",
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0f9d58)),
-                                ),
+
+                  // Description with dynamic "Read More"
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final textSpan = TextSpan(
+                        text: description,
+                        style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                      );
+                      final textPainter = TextPainter(
+                        text: textSpan,
+                        maxLines: visibleLines,
+                        textDirection: TextDirection.ltr,
+                      )..layout(maxWidth: constraints.maxWidth);
+
+                      final isOverflowing = textPainter.didExceedMaxLines;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            description,
+                            style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                            maxLines: visibleLines,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (isOverflowing) // Show Read More button if text is overflowing
+                            TextButton(
+                              onPressed: showMore,
+                              child: Text(
+                                "Read More",
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green[800]),
                               ),
-                          ],
-                        );
-                      },
-                    ),
+                            ),
+                        ],
+                      );
+                    },
                   ),
+
                   SizedBox(height: 20),
 
                   if (youtubeLinks.isNotEmpty) ...[

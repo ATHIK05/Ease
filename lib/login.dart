@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'home_page.dart';
 import 'localization/app_localizations.dart';
+import 'admins.dart'; // Added import for MyAdmins
 
 class LoginApp extends StatefulWidget {
   @override
@@ -157,6 +158,27 @@ class _LoginAppState extends State<LoginApp> {
                             ? CircularProgressIndicator(color: Colors.black)
                           : Text(
                           l.loginWithGoogle,
+                          style: TextStyle(color: Colors.black, fontSize: 16),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          elevation: 5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Admin Login Button
+                      ElevatedButton.icon(
+                        onPressed: isLoading ? null : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => MyAdmins()),
+                          );
+                        },
+                        icon: Icon(Icons.admin_panel_settings, color: Colors.black, size: 24),
+                        label: Text(
+                          'Login as Admin',
                           style: TextStyle(color: Colors.black, fontSize: 16),
                         ),
                         style: ElevatedButton.styleFrom(
