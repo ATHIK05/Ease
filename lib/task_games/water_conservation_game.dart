@@ -107,14 +107,14 @@ class _WaterConservationGameState extends State<WaterConservationGame>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("💧 Water Hero!"),
+        title: Text("💧 Water Hero!", style: TextStyle(color: Colors.black)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Excellent work fixing the leaks!"),
+            Text("Excellent work fixing the leaks!", style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),
-            Text("Water Saved: ${waterSaved}L 💧"),
-            Text("You're protecting our precious water! 🌍"),
+            Text("Water Saved: ${waterSaved}L 💧", style: TextStyle(color: Colors.black)),
+            Text("You're protecting our precious water! 🌍", style: TextStyle(color: Colors.black)),
           ],
         ),
         actions: [

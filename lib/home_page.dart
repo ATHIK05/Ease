@@ -35,64 +35,87 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildLanguageDialogContent(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 10.0,
-            offset: Offset(0.0, 10.0),
+  final l = AppLocalizations.of(context)!;
+  final theme = Theme.of(context);
+  final isDark = theme.brightness == Brightness.dark;
+
+  final textColor = isDark ? Colors.white : Colors.black87; // ✅ ensures contrast
+
+  return Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: theme.dialogBackgroundColor,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: isDark ? Colors.black54 : Colors.grey.withOpacity(0.3),
+          blurRadius: 12.0,
+          offset: const Offset(0, 6),
+        ),
+      ],
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          l.selectLanguage,
+          style: TextStyle(
+            fontSize: 22.0,
+            fontWeight: FontWeight.w700,
+            color: textColor,
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            l.selectLanguage,
-            style: TextStyle(
-              fontSize: 22.0,
-              fontWeight: FontWeight.w600,
-              color: Colors.green[800],
-            ),
+        ),
+        const SizedBox(height: 16.0),
+        Divider(thickness: 1, color: theme.dividerColor.withOpacity(0.5)),
+        const SizedBox(height: 8),
+
+        // English
+        ListTile(
+          leading: Icon(Icons.sort_by_alpha_sharp,
+              color: isDark ? Colors.tealAccent : Colors.green),
+          title: Text(
+            l.english,
+            style: TextStyle(color: textColor, fontSize: 16),
           ),
-          const SizedBox(height: 16.0),
-          const Divider(thickness: 1),
-          const SizedBox(height: 8),
-          ListTile(
-            leading:
-            const Icon(Icons.sort_by_alpha_sharp, color: Colors.green),
-            title: Text(l.english),
-            onTap: () {
-              _updateLanguage(context, "English");
-              Navigator.of(context).pop();
-            },
+          onTap: () {
+            _updateLanguage(context, "English");
+            Navigator.of(context).pop();
+          },
+        ),
+
+        // Tamil
+        ListTile(
+          leading: Icon(Icons.language,
+              color: isDark ? Colors.tealAccent : Colors.green),
+          title: Text(
+            l.tamil,
+            style: TextStyle(color: textColor, fontSize: 16),
           ),
-          ListTile(
-            leading: const Icon(Icons.language, color: Colors.green),
-            title: Text(l.tamil),
-            onTap: () {
-              _updateLanguage(context, "Tamil");
-              Navigator.of(context).pop();
-            },
+          onTap: () {
+            _updateLanguage(context, "Tamil");
+            Navigator.of(context).pop();
+          },
+        ),
+
+        // Hindi
+        ListTile(
+          leading: Icon(Icons.translate,
+              color: isDark ? Colors.tealAccent : Colors.green),
+          title: Text(
+            l.hindi,
+            style: TextStyle(color: textColor, fontSize: 16),
           ),
-          ListTile(
-            leading: const Icon(Icons.translate, color: Colors.green),
-            title: Text(l.hindi),
-            onTap: () {
-              _updateLanguage(context, "Hindi");
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
-    );
-  }
+          onTap: () {
+            _updateLanguage(context, "Hindi");
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    ),
+  );
+}
+
 
   // Method to update the language in the 'users' collection.
   void _updateLanguage(BuildContext context, String language) async {
@@ -116,49 +139,55 @@ class HomePage extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
       appBar: AppTopBar(
-        leading: IconButton(
-          icon: Icon(Icons.translate, color: theme.iconTheme.color),
-          onPressed: () => _showLanguageDialog(context),
-        ),
-        title: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Text(localizations.home, style: TextStyle(color: theme.textTheme.titleLarge?.color));
-            }
-            final userData =
-                snapshot.data!.data() as Map<String, dynamic>? ?? {};
-            String language = userData['language'] ?? "English";
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.home, size: 28, color: theme.iconTheme.color),
-                const SizedBox(width: 8),
-                Text(localizations.home, style: TextStyle(color: theme.textTheme.titleLarge?.color)),
-              ],
-            );
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.dark_mode, color: theme.iconTheme.color),
-            onPressed: () => appState.toggleTheme(),
-            tooltip: 'Toggle Theme',
-          ),
-          IconButton(
-            icon: Icon(Icons.person, color: theme.iconTheme.color),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
-              );
-            },
+  leading: IconButton(
+    icon: const Icon(Icons.translate, color: Colors.white), // ✅ always white
+    onPressed: () => _showLanguageDialog(context),
+  ),
+  title: StreamBuilder<DocumentSnapshot>(
+    stream: FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .snapshots(),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) {
+        return const Text(
+          "Home",
+          style: TextStyle(color: Colors.white), // ✅ always white
+        );
+      }
+      final userData =
+          snapshot.data!.data() as Map<String, dynamic>? ?? {};
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.home, size: 28, color: Colors.white), // ✅ always white
+          SizedBox(width: 8),
+          Text(
+            "Home",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
           ),
         ],
-      ),
+      );
+    },
+  ),
+  actions: [
+    IconButton(
+      icon: const Icon(Icons.dark_mode, color: Colors.white), // ✅ always white
+      onPressed: () => appState.toggleTheme(),
+      tooltip: 'Toggle Theme',
+    ),
+    IconButton(
+      icon: const Icon(Icons.person, color: Colors.white), // ✅ always white
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfilePage()),
+        );
+      },
+    ),
+  ],
+),
+
       // Main body content.
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance

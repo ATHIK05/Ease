@@ -80,7 +80,7 @@ class _OceanCleanupGameState extends State<OceanCleanupGame>
       trashItems.removeWhere((item) => item.id == trashId);
       trashesCleaned++;
       score += 10;
-      
+
       // Make sea creatures happier
       for (var creature in seaCreatures) {
         if (trashesCleaned >= 3) {
@@ -100,13 +100,15 @@ class _OceanCleanupGameState extends State<OceanCleanupGame>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("🎉 Ocean Saved!"),
+        title: Text("🎉 Ocean Saved!", style: TextStyle(color: Colors.black)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Amazing work! You cleaned $trashesCleaned pieces of trash!"),
+            Text("Amazing work! You cleaned $trashesCleaned pieces of trash!",
+                style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),
-            Text("The sea creatures are happy and healthy now! 🐠🐢"),
+            Text("The sea creatures are happy and healthy now! 🐠🐢",
+                style: TextStyle(color: Colors.black)),
           ],
         ),
         actions: [
@@ -167,25 +169,25 @@ class _OceanCleanupGameState extends State<OceanCleanupGame>
 
           // Sea Creatures
           ...seaCreatures.map((creature) => AnimatedBuilder(
-            animation: _fishController,
-            builder: (context, child) {
-              return Positioned(
-                left: creature.x + sin(_fishController.value * 2 * pi) * 20,
-                top: creature.y + cos(_fishController.value * 2 * pi) * 10,
-                child: _buildSeaCreature(creature),
-              );
-            },
-          )),
+                animation: _fishController,
+                builder: (context, child) {
+                  return Positioned(
+                    left: creature.x + sin(_fishController.value * 2 * pi) * 20,
+                    top: creature.y + cos(_fishController.value * 2 * pi) * 10,
+                    child: _buildSeaCreature(creature),
+                  );
+                },
+              )),
 
           // Trash Items
           ...trashItems.map((trash) => Positioned(
-            left: trash.x,
-            top: trash.y,
-            child: GestureDetector(
-              onTap: () => _cleanTrash(trash.id),
-              child: _buildTrashItem(trash),
-            ),
-          )),
+                left: trash.x,
+                top: trash.y,
+                child: GestureDetector(
+                  onTap: () => _cleanTrash(trash.id),
+                  child: _buildTrashItem(trash),
+                ),
+              )),
 
           // UI Elements
           Positioned(
@@ -394,4 +396,5 @@ class SeaCreature {
 }
 
 enum TrashType { plastic, can, bag, bottle }
+
 enum CreatureType { fish, turtle, whale, dolphin }

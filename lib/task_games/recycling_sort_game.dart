@@ -83,15 +83,15 @@ class _RecyclingSortGameState extends State<RecyclingSortGame>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("🎉 Sorting Master!"),
+        title: Text("🎉 Sorting Master!", style: TextStyle(color: Colors.black)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Great job sorting the waste!"),
+            Text("Great job sorting the waste!", style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),
-            Text("Correct: $correctSorts ✅"),
-            Text("Wrong: $wrongSorts ❌"),
-            Text("Final Score: $score 🏆"),
+            Text("Correct: $correctSorts ✅", style: TextStyle(color: Colors.black)),
+            Text("Wrong: $wrongSorts ❌", style: TextStyle(color: Colors.black)),
+            Text("Final Score: $score 🏆", style: TextStyle(color: Colors.black)),
           ],
         ),
         actions: [
@@ -278,7 +278,13 @@ class _RecyclingSortGameState extends State<RecyclingSortGame>
         children: [
           Expanded(
             child: DragTarget<WasteItem>(
+              onWillAccept: (item) => item != null && item.isBiodegradable,
               onAccept: (item) => _sortItem(item, true),
+              onLeave: (item) {
+                if (item != null && !item.isBiodegradable) {
+                  _showWrongDropMessage();
+                }
+              },
               builder: (context, candidateData, rejectedData) {
                 return _buildBin(
                   "🌱 Biodegradable",
@@ -291,7 +297,13 @@ class _RecyclingSortGameState extends State<RecyclingSortGame>
           SizedBox(width: 20),
           Expanded(
             child: DragTarget<WasteItem>(
+              onWillAccept: (item) => item != null && !item.isBiodegradable,
               onAccept: (item) => _sortItem(item, false),
+              onLeave: (item) {
+                if (item != null && item.isBiodegradable) {
+                  _showWrongDropMessage();
+                }
+              },
               builder: (context, candidateData, rejectedData) {
                 return _buildBin(
                   "🗑️ Non-Biodegradable",
@@ -300,6 +312,33 @@ class _RecyclingSortGameState extends State<RecyclingSortGame>
                 );
               },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showWrongDropMessage() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        backgroundColor: Colors.red[50],
+        title: Text(
+          "Ahh! Ah!!",
+          style: TextStyle(
+            color: Colors.red[800],
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          "It's wrong. Try Again.",
+          style: TextStyle(color: Colors.red[800]),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("OK", style: TextStyle(color: Colors.red[800])),
           ),
         ],
       ),

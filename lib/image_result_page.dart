@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'disposal.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 class ImageResultPage extends StatefulWidget {
   final File image;
   final Map<String, dynamic> descriptionText;
@@ -131,20 +133,59 @@ class _ImageResultPageState extends State<ImageResultPage> with SingleTickerProv
       return;
     }
 
-    // Build the query string based on the user's input.
+    // Fetch user's language from Firestore
+    String language = "English";
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      language = userDoc.data()?['language'] ?? "English";
+    }
+
+    // Build the query string based on the user's input and language.
     String formattedQuery;
-    if (query == "Product Details") {
-      formattedQuery =
-      "Based on these labels: ${_labels.join(", ")}, identify the product. Explain its significance in daily life and highlight three key advantages and disadvantages that users commonly experience and explain in detail";
-    } else if (query == "Environmental Impact") {
-      formattedQuery =
-      "Using these labels: ${_labels.join(", ")}, determine the product. Analyze its impact on the environment, including its effects on ecosystems and practical uses. If it poses harm, suggest realistic ways to repurpose or dispose of it responsibly to minimize pollution and promote sustainability. Do not include phrases like 'Below is' or 'Here is' in your response; provide only the content and explain in detail";
-    } else if (query == "Health Impact") {
-      formattedQuery =
-      "Identify the product based on these labels: ${_labels.join(", ")}. Discuss its health benefits and potential risks when used or consumed. Address common concerns people face regarding safety, allergies, or long-term effects. Avoid unnecessary introductory phrases and provide direct, clear information and explain in detail with needed measure to be taken";
+    if (language == "Hindi") {
+      if (query == "Product Details") {
+        formattedQuery =
+            "इन लेबल्स के आधार पर: ${_labels.join(", ")}, उत्पाद की पहचान करें। इसके दैनिक जीवन में महत्व और उपयोगकर्ताओं द्वारा आमतौर पर अनुभव किए जाने वाले तीन प्रमुख लाभ और हानियों को विस्तार से समझाएं।";
+      } else if (query == "Environmental Impact") {
+        formattedQuery =
+            "इन लेबल्स का उपयोग करके: ${_labels.join(", ")}, उत्पाद निर्धारित करें। इसके पर्यावरण पर प्रभाव का विश्लेषण करें, जिसमें पारिस्थितिक तंत्र पर प्रभाव और व्यावहारिक उपयोग शामिल हैं। यदि यह हानिकारक है, तो प्रदूषण को कम करने और स्थिरता को बढ़ावा देने के लिए इसे जिम्मेदारी से पुन: उपयोग या निपटान के यथार्थवादी तरीके सुझाएं। अनावश्यक परिचयात्मक वाक्यांशों से बचें और केवल सामग्री प्रदान करें।";
+      } else if (query == "Health Impact") {
+        formattedQuery =
+            "इन लेबल्स के आधार पर उत्पाद की पहचान करें: ${_labels.join(", ")}. इसके स्वास्थ्य लाभ और संभावित जोखिमों पर चर्चा करें। सुरक्षा, एलर्जी या दीर्घकालिक प्रभावों के बारे में आम चिंताओं को संबोधित करें। अनावश्यक परिचयात्मक वाक्यांशों से बचें और सीधे, स्पष्ट जानकारी प्रदान करें।";
+      } else {
+        formattedQuery =
+            "इन लेबल्स से उत्पाद की पहचान करें: ${_labels.join(", ")}, सही निपटान विधियों को समझाएं। पर्यावरण सुरक्षा सुनिश्चित करने के लिए स्पष्ट, पालन करने में आसान कदम प्रदान करें और कार्य के रूप में कुछ शिल्प कार्य विचार भी दें। सरल भाषा का उपयोग करें ताकि एक 8 वर्षीय बच्चा भी इसे सही तरीके से निपटा सके। अनावश्यक वाक्यांशों से बचें; जानकारी सीधे दें और कार्यों को बुलेटिन में अलग से सूचीबद्ध करें और उत्पाद की श्रेणी बताएं।";
+      }
+    } else if (language == "Tamil") {
+      if (query == "Product Details") {
+        formattedQuery =
+            "இந்த லேபிள்களின் அடிப்படையில்: ${_labels.join(", ")}, தயாரிப்பை அடையாளம் காணவும். அதன் தினசரி வாழ்க்கையில் முக்கியத்துவம் மற்றும் பயனர்களால் அனுபவிக்கப்படும் மூன்று முக்கிய நன்மைகள் மற்றும் தீமைகள் பற்றி விரிவாக விளக்கவும்.";
+      } else if (query == "Environmental Impact") {
+        formattedQuery =
+            "இந்த லேபிள்களைப் பயன்படுத்தி: ${_labels.join(", ")}, தயாரிப்பை தீர்மானிக்கவும். அதன் சுற்றுச்சூழல் தாக்கத்தை பகுப்பாய்வு செய்யவும், அதில் பருவநிலை மாற்றம் மற்றும் நடைமுறை பயன்பாடுகள் அடங்கும். இது தீங்கு விளைவிப்பதாக இருந்தால், மாசுபாட்டை குறைக்கும் மற்றும் நிலைத்தன்மையை ஊக்குவிக்கும் நியாயமான வழிகளை பரிந்துரைக்கவும். தேவையற்ற அறிமுகங்களை தவிர்க்கவும் மற்றும் உள்ளடக்கத்தை மட்டும் வழங்கவும்.";
+      } else if (query == "Health Impact") {
+        formattedQuery =
+            "இந்த லேபிள்களின் அடிப்படையில் தயாரிப்பை அடையாளம் காணவும்: ${_labels.join(", ")}. அதன் ஆரோக்கிய நன்மைகள் மற்றும் சாத்தியமான ஆபத்துகள் பற்றி விவாதிக்கவும். பாதுகாப்பு, ஒவ்வாமை அல்லது நீண்டகால விளைவுகள் குறித்து பொதுவாக உள்ள கவலைகளை குறிப்பிடவும். தேவையற்ற அறிமுகங்களை தவிர்த்து நேரடி, தெளிவான தகவலை வழங்கவும்.";
+      } else {
+        formattedQuery =
+            "இந்த லேபிள்களைப் பயன்படுத்தி தயாரிப்பை அடையாளம் காணவும்: ${_labels.join(", ")}, சரியான அகற்றும் முறைகளை விளக்கவும். சுற்றுச்சூழல் பாதுகாப்பை உறுதி செய்ய தெளிவான, பின்பற்ற எளிதான படிகளை வழங்கவும் மற்றும் பணியாக சில கைவினை யோசனைகளையும் வழங்கவும். எளிய மொழியைப் பயன்படுத்தவும், 8 வயது குழந்தை கூட அதை சரியாக அகற்ற முடியும். தேவையற்ற அறிமுகங்களை தவிர்க்கவும்; தகவலை நேரடியாக வழங்கவும், பணிகளை தனியாக பட்டியலிடவும் மற்றும் தயாரிப்பின் வகையை குறிப்பிடவும்.";
+      }
     } else {
-      formattedQuery =
-      "Recognizing the product from these labels: ${_labels.join(", ")}, explain the correct disposal methods. Provide clear, easy-to-follow steps that ensure environmental safety and also provide some craft work ideas as Task .Use simple language so even an 8-year-old can understand how to dispose of it properly without harming nature. Do not include phrases like 'Below is' or 'Here is'; deliver the information directly and after explaining give me the task needed to be done to dispose them mention those task seperatedly as Task to be taken followed by the task only in bulletin and say what type of category does the product belongs to";
+      // English (default)
+      if (query == "Product Details") {
+        formattedQuery =
+            "Based on these labels: ${_labels.join(", ")}, identify the product. Explain its significance in daily life and highlight three key advantages and disadvantages that users commonly experience and explain in detail";
+      } else if (query == "Environmental Impact") {
+        formattedQuery =
+            "Using these labels: ${_labels.join(", ")}, determine the product. Analyze its impact on the environment, including its effects on ecosystems and practical uses. If it poses harm, suggest realistic ways to repurpose or dispose of it responsibly to minimize pollution and promote sustainability. Do not include phrases like 'Below is' or 'Here is' in your response; provide only the content and explain in detail";
+      } else if (query == "Health Impact") {
+        formattedQuery =
+            "Identify the product based on these labels: ${_labels.join(", ")}. Discuss its health benefits and potential risks when used or consumed. Address common concerns people face regarding safety, allergies, or long-term effects. Avoid unnecessary introductory phrases and provide direct, clear information and explain in detail with needed measure to be taken";
+      } else {
+        formattedQuery =
+            "Recognizing the product from these labels: ${_labels.join(", ")}, explain the correct disposal methods. Provide clear, easy-to-follow steps that ensure environmental safety and also provide some craft work ideas as Task .Use simple language so even an 8-year-old can understand how to dispose of it properly without harming nature. Do not include phrases like 'Below is' or 'Here is'; deliver the information directly and after explaining give me the task needed to be done to dispose them mention those task seperatedly as Task to be taken followed by the task only in bulletin and say what type of category does the product belongs to";
+      }
     }
 
     setState(() {

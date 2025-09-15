@@ -74,7 +74,7 @@ class _FoodWasteGameState extends State<FoodWasteGame>
       capacity: 0,
       maxCapacity: 5,
     ));
-    
+
     compostBins.add(CompostBin(
       id: 1,
       x: 250,
@@ -89,7 +89,7 @@ class _FoodWasteGameState extends State<FoodWasteGame>
       final food = foodItems.firstWhere((f) => f.id == foodId);
       if (!food.isUsed) {
         food.isUsed = true;
-        
+
         switch (action) {
           case FoodAction.save:
             if (food.freshness > 50) {
@@ -129,16 +129,21 @@ class _FoodWasteGameState extends State<FoodWasteGame>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("🍽️ Food Hero!"),
+        title: Text("🍽️ Food Hero!", style: TextStyle(color: Colors.black)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Amazing! You reduced food waste!"),
+            Text("Amazing! You reduced food waste!",
+                style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),
-            Text("Food Saved: $foodSaved items 🥗"),
-            Text("Compost Made: $compostMade bins 🌱"),
-            Text("Waste Reduced: $wasteReduced points ♻️"),
-            Text("You're fighting hunger and helping Earth! 🌍"),
+            Text("Food Saved: $foodSaved items 🥗",
+                style: TextStyle(color: Colors.black)),
+            Text("Compost Made: $compostMade bins 🌱",
+                style: TextStyle(color: Colors.black)),
+            Text("Waste Reduced: $wasteReduced points ♻️",
+                style: TextStyle(color: Colors.black)),
+            Text("You're fighting hunger and helping Earth! 🌍",
+                style: TextStyle(color: Colors.black)),
           ],
         ),
         actions: [
@@ -184,21 +189,21 @@ class _FoodWasteGameState extends State<FoodWasteGame>
           children: [
             // Kitchen background
             _buildKitchenBackground(),
-            
+
             // Food items
             ...foodItems.where((f) => !f.isUsed).map((food) => Positioned(
-              left: food.x,
-              top: food.y,
-              child: _buildFoodItem(food),
-            )),
-            
+                  left: food.x,
+                  top: food.y,
+                  child: _buildFoodItem(food),
+                )),
+
             // Compost bins
             ...compostBins.map((bin) => Positioned(
-              left: bin.x,
-              top: bin.y,
-              child: _buildCompostBin(bin),
-            )),
-            
+                  left: bin.x,
+                  top: bin.y,
+                  child: _buildCompostBin(bin),
+                )),
+
             // UI
             _buildGameUI(),
             _buildInstructions(),
@@ -255,7 +260,8 @@ class _FoodWasteGameState extends State<FoodWasteGame>
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       GestureDetector(
-                        onTap: () => _handleFoodAction(food.id, FoodAction.save),
+                        onTap: () =>
+                            _handleFoodAction(food.id, FoodAction.save),
                         child: Container(
                           width: 20,
                           height: 20,
@@ -263,11 +269,13 @@ class _FoodWasteGameState extends State<FoodWasteGame>
                             color: Colors.green,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.favorite, color: Colors.white, size: 12),
+                          child: Icon(Icons.favorite,
+                              color: Colors.white, size: 12),
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => _handleFoodAction(food.id, FoodAction.compost),
+                        onTap: () =>
+                            _handleFoodAction(food.id, FoodAction.compost),
                         child: Container(
                           width: 20,
                           height: 20,
@@ -487,7 +495,8 @@ class KitchenPainter extends CustomPainter {
     paint.color = Colors.brown[600]!;
     for (int i = 0; i < 4; i++) {
       canvas.drawRect(
-        Rect.fromLTWH(i * (size.width / 4), size.height * 0.1, size.width / 4 - 10, 100),
+        Rect.fromLTWH(
+            i * (size.width / 4), size.height * 0.1, size.width / 4 - 10, 100),
         paint,
       );
     }

@@ -14,6 +14,73 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'help.dart';
+import 'package:http/http.dart' as http;
+
+const String YOUTUBE_API_KEY = 'AIzaSyCssq7Fw7GCjhznHFsRrq25bdbCrOp2Vlc';
+
+// Extract videoId from any YouTube URL
+String extractYouTubeVideoId(String url) {
+  final RegExp regExp = RegExp(
+    r'(?:v=|\/)([0-9A-Za-z_-]{11}).*',
+    caseSensitive: false,
+    multiLine: false,
+  );
+  final match = regExp.firstMatch(url);
+  if (match != null && match.groupCount >= 1) {
+    return match.group(1)!;
+  }
+  // Try youtu.be short links
+  final shortRegExp = RegExp(r'youtu\.be\/([0-9A-Za-z_-]{11})');
+  final shortMatch = shortRegExp.firstMatch(url);
+  if (shortMatch != null && shortMatch.groupCount >= 1) {
+    return shortMatch.group(1)!;
+  }
+  return '';
+}
+
+// Fetch video details from YouTube Data API
+Future<Map<String, String>> fetchYouTubeVideoDetails(String videoId) async {
+  final url =
+      'https://www.googleapis.com/youtube/v3/videos?part=snippet&id=$videoId&key=$YOUTUBE_API_KEY';
+  try {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['items'] != null && data['items'].isNotEmpty) {
+        final snippet = data['items'][0]['snippet'];
+        final title = snippet['title'] ?? '';
+        final thumbnail = snippet['thumbnails']?['medium']?['url'] ?? '';
+        return {'title': title, 'thumbnail': thumbnail};
+      }
+    }
+  } catch (e) {
+    print('Error fetching YouTube details: $e');
+  }
+  return {'title': '', 'thumbnail': ''};
+}
+
+// Add this function to search YouTube for a query and return the top video details
+Future<Map<String, String>?> searchYouTubeVideo(String query) async {
+  final url =
+      'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=${Uri.encodeComponent(query)}&key=$YOUTUBE_API_KEY';
+  try {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['items'] != null && data['items'].isNotEmpty) {
+        final item = data['items'][0];
+        final videoId = item['id']['videoId'] ?? '';
+        final title = item['snippet']['title'] ?? '';
+        final thumbnail = item['snippet']['thumbnails']?['medium']?['url'] ?? '';
+        return {'videoId': videoId, 'title': title, 'thumbnail': thumbnail};
+      }
+    }
+  } catch (e) {
+    print('Error searching YouTube: $e');
+  }
+  return null;
+}
+
 class DisposalPage extends StatefulWidget {
   final String responseText;
   final File image;
@@ -108,17 +175,22 @@ class _DisposalPageState extends State<DisposalPage> {
         'https://www.youtube.com/shorts/4ZVpC1nfmzE',
         'https://www.youtube.com/watch?v=_ItLfaO_WY0',
         'https://www.youtube.com/watch?v=5XAFMEBiouQ',
+    'https://www.youtube.com/watch?v=vCypOfwl3xs',
+    'https://www.youtube.com/watch?v=AeRcsQ2HaZs'
       ],
       'paper': [
         'https://www.youtube.com/shorts/rOQpYiU8y1M',
         'https://www.youtube.com/shorts/rWF0YPzxwb8',
         'https://www.youtube.com/shorts/7uYcSRMb5xE',
         'https://www.youtube.com/watch?v=aaz4Qe6zYyU',
+    'https://www.youtube.com/watch?v=Ief_sTvSHrk'
       ],
       'plastic': [
         'https://www.youtube.com/watch?v=oDLjsFGFj7g',
         'https://www.youtube.com/watch?v=MH22eO9QqeQ',
         'https://www.youtube.com/shorts/SkLw6nwNdkU',
+    'https://www.youtube.com/watch?v=Po1FEtpA0XI',
+    'https://www.youtube.com/watch?v=hh_zrhGlb1Y'
       ],
       'electronics': [
         'https://www.youtube.com/shorts/6ETBBHBbnlQ',
@@ -353,15 +425,39 @@ class _DisposalPageState extends State<DisposalPage> {
   void handleCompletion() async {
     if (completedTasks.values.every((completed) => completed)) {
       if (isHighComplexity) {
-        // Only for high-complexity products, ask for quantity and after-image
         await _storeCompletionData();
         _confettiController.play();
       } else {
-        // For simple products, just show points and success
         await _storeSimpleCompletion();
         _confettiController.play();
         showSuccessDialog(context, totalScore);
       }
+      // --- REPORT SUBMISSION LOGIC ---
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+        final docSnapshot = await userDoc.get();
+        String? userName = docSnapshot.data()?['name'] ?? '';
+        String? userPhone = docSnapshot.data()?['phone'] ?? '';
+        String? userProfile = docSnapshot.data()?['profile'] ?? '';
+        // Compose report data
+        final reportData = {
+          'userId': user.uid,
+          'userName': userName,
+          'userPhone': userPhone,
+          'userProfile': userProfile,
+          'description': description,
+          'category': category,
+          'tasks': tasks,
+          'completedTasks': completedTasks,
+          'timestamp': FieldValue.serverTimestamp(),
+          'status': 'Not Approved',
+        };
+        await FirebaseFirestore.instance.collection('reports').add(reportData);
+        // Optionally, broadcast to municipal office (e.g., add to a subcollection or update a field)
+        // You can add more logic here if you want to notify a specific office
+      }
+      // --- END REPORT SUBMISSION LOGIC ---
     } else {
       showIncompleteDialog(context);
     }
@@ -678,6 +774,10 @@ class _DisposalPageState extends State<DisposalPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+    final onBackground = theme.colorScheme.onBackground;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -788,7 +888,7 @@ class _DisposalPageState extends State<DisposalPage> {
                     builder: (context, constraints) {
                       final textSpan = TextSpan(
                         text: description,
-                        style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                        style: TextStyle(fontSize: 16, color: onSurface),
                       );
                       final textPainter = TextPainter(
                         text: textSpan,
@@ -803,7 +903,7 @@ class _DisposalPageState extends State<DisposalPage> {
                         children: [
                           Text(
                             description,
-                            style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                            style: TextStyle(fontSize: 16, color: onSurface),
                             maxLines: visibleLines,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -889,23 +989,102 @@ class _DisposalPageState extends State<DisposalPage> {
                                     controller: _pageController,
                                     itemCount: youtubeLinks.length,
                                     itemBuilder: (context, index) {
-                                      String videoId = YoutubePlayer.convertUrlToId(youtubeLinks[index])!;
-                                      return Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(24),
+                                      String videoUrl = youtubeLinks[index];
+                                      String videoId = extractYouTubeVideoId(videoUrl);
+                                      return FutureBuilder<Map<String, String>>(
+                                        future: fetchYouTubeVideoDetails(videoId),
+                                        builder: (context, snapshot) {
+                                          if (!snapshot.hasData) {
+                                            return Center(child: CircularProgressIndicator());
+                                          }
+                                          final details = snapshot.data!;
+                                          final thumbnail = details['thumbnail'] ?? '';
+                                          final title = details['title'] ?? '';
+                                          return GestureDetector(
+                                            onTap: () {
+                                              // Show the player as before
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) => Dialog(
+                                                  backgroundColor: Colors.transparent,
+                                                  child: AspectRatio(
+                                                    aspectRatio: 16 / 9,
                                           child: YoutubePlayer(
                                             controller: YoutubePlayerController(
                                               initialVideoId: videoId,
                                               flags: const YoutubePlayerFlags(
-                                                autoPlay: false,
+                                                          autoPlay: true,
                                                 mute: false,
                                               ),
                                             ),
                                             showVideoProgressIndicator: true,
                                             progressIndicatorColor: Colors.redAccent,
-                                          ),
-                                        ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: Stack(
+                                              children: [
+                                                // Thumbnail
+                                                ClipRRect(
+                                                  borderRadius: BorderRadius.circular(24),
+                                                  child: thumbnail.isNotEmpty
+                                                      ? Image.network(
+                                                          thumbnail,
+                                                          width: double.infinity,
+                                                          height: 220,
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      : Container(
+                                                          width: double.infinity,
+                                                          height: 220,
+                                                          color: Colors.black12,
+                                                          child: Center(child: Icon(Icons.image, size: 60, color: onSurface)),
+                                                        ),
+                                                ),
+                                                // Play button overlay
+                                                Positioned.fill(
+                                                  child: Center(
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black45,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: Icon(Icons.play_arrow, color: onSurface, size: 56),
+                                                    ),
+                                                  ),
+                                                ),
+                                                // Title at the bottom
+                                                Positioned(
+                                                  left: 0,
+                                                  right: 0,
+                                                  bottom: 0,
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black54,
+                                                      borderRadius: const BorderRadius.only(
+                                                        bottomLeft: Radius.circular(24),
+                                                        bottomRight: Radius.circular(24),
+                                                      ),
+                                                    ),
+                                                    child: Text(
+                                                      title,
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 16,
+                                                      ),
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
                                       );
                                     },
                                     onPageChanged: (index) {
@@ -1096,7 +1275,7 @@ class _DisposalPageState extends State<DisposalPage> {
                                       style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.green[900]
+                                          color: onSurface
                                       ),
                                     ),
                                   ),

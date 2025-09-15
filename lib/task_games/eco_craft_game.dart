@@ -42,7 +42,7 @@ class _EcoCraftGameState extends State<EcoCraftGame>
   void _generateMaterials() {
     final allMaterials = ["🥤", "🥫", "📦", "🎨", "✂️", "🪢", "🌾", "🌱", "🔔"];
     final random = Random();
-    
+
     for (int i = 0; i < 9; i++) {
       materials.add(CraftMaterial(
         id: i,
@@ -65,7 +65,7 @@ class _EcoCraftGameState extends State<EcoCraftGame>
       if (!material.isSelected && selectedMaterials.length < 3) {
         material.isSelected = true;
         selectedMaterials.add(material);
-        
+
         if (selectedMaterials.length == 3) {
           _checkProject();
         }
@@ -76,10 +76,10 @@ class _EcoCraftGameState extends State<EcoCraftGame>
   void _checkProject() {
     final requiredMaterials = craftProjects[currentProject!]!;
     final selectedEmojis = selectedMaterials.map((m) => m.emoji).toList();
-    
-    bool isCorrect = requiredMaterials.every((material) => 
-        selectedEmojis.contains(material));
-    
+
+    bool isCorrect = requiredMaterials
+        .every((material) => selectedEmojis.contains(material));
+
     if (isCorrect) {
       _completeProject();
     } else {
@@ -91,12 +91,12 @@ class _EcoCraftGameState extends State<EcoCraftGame>
     setState(() {
       projectsCompleted++;
       selectedMaterials.clear();
-      
+
       // Reset materials
       for (var material in materials) {
         material.isSelected = false;
       }
-      
+
       if (projectsCompleted >= 3) {
         _completeGame();
       } else {
@@ -112,7 +112,7 @@ class _EcoCraftGameState extends State<EcoCraftGame>
       }
       selectedMaterials.clear();
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Try again! Check the recipe carefully."),
@@ -132,14 +132,17 @@ class _EcoCraftGameState extends State<EcoCraftGame>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("🎨 Eco Artist!"),
+        title: Text("🎨 Eco Artist!", style: TextStyle(color: Colors.black)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Amazing creativity! You made $projectsCompleted eco-crafts!"),
+            Text("Amazing creativity! You made $projectsCompleted eco-crafts!",
+                style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),
-            Text("You turned trash into treasure! ♻️"),
-            Text("Keep being creative and eco-friendly! 🌍"),
+            Text("You turned trash into treasure! ♻️",
+                style: TextStyle(color: Colors.black)),
+            Text("Keep being creative and eco-friendly! 🌍",
+                style: TextStyle(color: Colors.black)),
           ],
         ),
         actions: [
@@ -191,7 +194,7 @@ class _EcoCraftGameState extends State<EcoCraftGame>
                 );
               },
             ),
-            
+
             // Game content
             Column(
               children: [
@@ -241,7 +244,7 @@ class _EcoCraftGameState extends State<EcoCraftGame>
 
   Widget _buildProjectDisplay() {
     if (currentProject == null) return Container();
-    
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: EdgeInsets.all(16),
@@ -278,17 +281,19 @@ class _EcoCraftGameState extends State<EcoCraftGame>
           SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: craftProjects[currentProject!]!.map((material) => 
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 5),
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.purple[50],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(material, style: TextStyle(fontSize: 30)),
-              ),
-            ).toList(),
+            children: craftProjects[currentProject!]!
+                .map(
+                  (material) => Container(
+                    margin: EdgeInsets.symmetric(horizontal: 5),
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.purple[50],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(material, style: TextStyle(fontSize: 30)),
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -330,8 +335,8 @@ class _EcoCraftGameState extends State<EcoCraftGame>
                   ),
                   child: Center(
                     child: Text(
-                      i < selectedMaterials.length 
-                          ? selectedMaterials[i].emoji 
+                      i < selectedMaterials.length
+                          ? selectedMaterials[i].emoji
                           : "?",
                       style: TextStyle(fontSize: 30),
                     ),
@@ -361,14 +366,11 @@ class _EcoCraftGameState extends State<EcoCraftGame>
               onTap: () => _selectMaterial(material.id),
               child: Container(
                 decoration: BoxDecoration(
-                  color: material.isSelected 
-                      ? Colors.green[100]
-                      : Colors.white,
+                  color: material.isSelected ? Colors.green[100] : Colors.white,
                   borderRadius: BorderRadius.circular(15),
                   border: Border.all(
-                    color: material.isSelected 
-                        ? Colors.green 
-                        : Colors.grey[300]!,
+                    color:
+                        material.isSelected ? Colors.green : Colors.grey[300]!,
                     width: 3,
                   ),
                   boxShadow: [
@@ -427,8 +429,10 @@ class SparklePainter extends CustomPainter {
 
     for (int i = 0; i < 15; i++) {
       final x = (size.width * (i / 15) + animationValue * 100) % size.width;
-      final y = (size.height * ((i * 0.7) % 1) + sin(animationValue * 2 * pi + i) * 50) % size.height;
-      
+      final y = (size.height * ((i * 0.7) % 1) +
+              sin(animationValue * 2 * pi + i) * 50) %
+          size.height;
+
       canvas.drawCircle(Offset(x, y), 3, paint);
     }
   }

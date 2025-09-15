@@ -108,14 +108,14 @@ class _PlantGardenGameState extends State<PlantGardenGame>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("🌻 Garden Master!"),
+        title: Text("🌻 Garden Master!", style: TextStyle(color: Colors.black)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Your garden is blooming beautifully!"),
+            Text("Your garden is blooming beautifully!", style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),
-            Text("You grew $plantsGrown healthy plants! 🌱"),
-            Text("You're helping make the world greener! 🌍"),
+            Text("You grew $plantsGrown healthy plants! 🌱", style: TextStyle(color: Colors.black)),
+            Text("You're helping make the world greener! 🌍", style: TextStyle(color: Colors.black)),
           ],
         ),
         actions: [

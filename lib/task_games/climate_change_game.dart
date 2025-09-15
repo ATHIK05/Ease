@@ -89,7 +89,7 @@ class _ClimateChangeGameState extends State<ClimateChangeGame>
       if (!action.isCompleted) {
         action.isCompleted = true;
         carbonReduced += action.impact;
-        
+
         switch (action.type) {
           case ActionType.solarPanel:
           case ActionType.windTurbine:
@@ -101,12 +101,15 @@ class _ClimateChangeGameState extends State<ClimateChangeGame>
           default:
             break;
         }
-        
-        globalTemperature = math.max(20.0, globalTemperature - (action.impact * 0.5));
+
+        globalTemperature =
+            math.max(20.0, globalTemperature - (action.impact * 0.5));
       }
     });
-    
-    _temperatureController.forward().then((_) => _temperatureController.reset());
+
+    _temperatureController
+        .forward()
+        .then((_) => _temperatureController.reset());
   }
 
   void _completeGame() {
@@ -119,15 +122,19 @@ class _ClimateChangeGameState extends State<ClimateChangeGame>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("🌍 Climate Hero!"),
+        title: Text("🌍 Climate Hero!", style: TextStyle(color: Colors.black)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Outstanding! You helped fight climate change!"),
+            Text("Outstanding! You helped fight climate change!",
+                style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),
-            Text("Temperature: ${globalTemperature.toStringAsFixed(1)}°C 🌡️"),
-            Text("Carbon Reduced: $carbonReduced tons 🌿"),
-            Text("You're saving our planet's future! 🌍"),
+            Text("Temperature: ${globalTemperature.toStringAsFixed(1)}°C 🌡️",
+                style: TextStyle(color: Colors.black)),
+            Text("Carbon Reduced: $carbonReduced tons 🌿",
+                style: TextStyle(color: Colors.black)),
+            Text("You're saving our planet's future! 🌍",
+                style: TextStyle(color: Colors.black)),
           ],
         ),
         actions: [
@@ -203,17 +210,17 @@ class _ClimateChangeGameState extends State<ClimateChangeGame>
                 },
               ),
             ),
-            
+
             // Climate actions
             ...actions.map((action) => Positioned(
-              left: action.x,
-              top: action.y,
-              child: GestureDetector(
-                onTap: () => _performAction(action.id),
-                child: _buildClimateAction(action),
-              ),
-            )),
-            
+                  left: action.x,
+                  top: action.y,
+                  child: GestureDetector(
+                    onTap: () => _performAction(action.id),
+                    child: _buildClimateAction(action),
+                  ),
+                )),
+
             // UI
             _buildGameUI(),
             _buildInstructions(),
@@ -238,14 +245,14 @@ class _ClimateChangeGameState extends State<ClimateChangeGame>
       animation: _temperatureController,
       builder: (context, child) {
         return Transform.scale(
-          scale: action.isCompleted 
+          scale: action.isCompleted
               ? 1.0 + (_temperatureController.value * 0.2)
               : 1.0,
           child: Container(
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: action.isCompleted 
+              color: action.isCompleted
                   ? Colors.green.withOpacity(0.8)
                   : Colors.white.withOpacity(0.8),
               borderRadius: BorderRadius.circular(30),
@@ -312,7 +319,8 @@ class _ClimateChangeGameState extends State<ClimateChangeGame>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Carbon Reduced: $carbonReduced tons"),
-                Text("Actions: ${actions.where((a) => a.isCompleted).length}/${actions.length}"),
+                Text(
+                    "Actions: ${actions.where((a) => a.isCompleted).length}/${actions.length}"),
               ],
             ),
           ],

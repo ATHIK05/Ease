@@ -122,14 +122,14 @@ class _EnergySaverGameState extends State<EnergySaverGame>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("⚡ Energy Hero!"),
+        title: Text("⚡ Energy Hero!", style: TextStyle(color: Colors.black)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Amazing! You saved so much energy!"),
+            Text("Amazing! You saved so much energy!", style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),
-            Text("Energy Saved: ${energySaved}W ⚡"),
-            Text("You're helping fight climate change! 🌍"),
+            Text("Energy Saved: ${energySaved}W ⚡", style: TextStyle(color: Colors.black)),
+            Text("You're helping fight climate change! 🌍", style: TextStyle(color: Colors.black)),
           ],
         ),
         actions: [

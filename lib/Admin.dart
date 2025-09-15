@@ -33,12 +33,12 @@ class AdminPage extends StatelessWidget {
             backgroundColor: Colors.transparent,
             elevation: 0,
             centerTitle: true,
-            title: const Text(
-              'Admin Dashboard',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
+        title: const Text(
+          'Admin Dashboard',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
                 fontSize: 24,
-                color: Colors.white,
+            color: Colors.white,
                 letterSpacing: 1.2,
                 shadows: [
                   Shadow(
@@ -61,65 +61,65 @@ class AdminPage extends StatelessWidget {
           ),
         ),
         child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .where('status', isEqualTo: 'waiting')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .where('status', isEqualTo: 'waiting')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
                 child: CircularProgressIndicator(color: Color(0xFF43e97b)),
-              );
-            }
+            );
+          }
 
-            if (snapshot.hasError) {
-              return const Center(
-                child: Text(
-                  'Error fetching data',
-                  style: TextStyle(fontSize: 16, color: Colors.red),
-                ),
-              );
-            }
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text(
+                'Error fetching data',
+                style: TextStyle(fontSize: 16, color: Colors.red),
+              ),
+            );
+          }
 
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(
-                child: Text(
-                  'No waiting users',
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(
+              child: Text(
+                'No waiting users',
                   style: TextStyle(fontSize: 18, color: Colors.grey, fontWeight: FontWeight.w500),
-                ),
-              );
-            }
+              ),
+            );
+          }
 
-            final users = snapshot.data!.docs;
+          final users = snapshot.data!.docs;
 
-            return Padding(
+          return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: users.length,
-                itemBuilder: (context, index) {
-                  final userData = users[index].data() as Map<String, dynamic>;
-                  final userName = userData['name'] ?? 'Unknown';
-                  final profileImageUrl = userData['profile'] ?? '';
+            child: ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final userData = users[index].data() as Map<String, dynamic>;
+                final userName = userData['name'] ?? 'Unknown';
+                final profileImageUrl = userData['profile'] ?? '';
 
-                  return Padding(
+                return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: GestureDetector(
-                      onTap: () => _fetchAndShowImages(context, users[index].id),
+                  child: GestureDetector(
+                    onTap: () => _fetchAndShowImages(context, users[index].id),
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: AnimatedScale(
                           scale: 1.0,
                           duration: const Duration(milliseconds: 200),
-                          child: _buildGlassCard(userName, profileImageUrl),
+                    child: _buildGlassCard(userName, profileImageUrl),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            );
-          },
+                  ),
+                );
+              },
+            ),
+          );
+        },
         ),
       ),
     );
@@ -137,24 +137,24 @@ class AdminPage extends StatelessWidget {
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
               child: Container(
-                decoration: BoxDecoration(
+      decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
+        boxShadow: [
+          BoxShadow(
                       color: Colors.black.withOpacity(0.12),
                       blurRadius: 18,
                       offset: const Offset(0, 8),
-                    ),
-                  ],
-                  gradient: LinearGradient(
-                    colors: [
+          ),
+        ],
+        gradient: LinearGradient(
+          colors: [
                       Colors.white.withOpacity(0.35),
                       Colors.white.withOpacity(0.15),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  border: Border.all(
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(
                     color: Colors.white.withOpacity(0.25),
                     width: 1.5,
                   ),
@@ -165,73 +165,73 @@ class AdminPage extends StatelessWidget {
             ),
             // Card content
             Row(
-              children: [
-                Padding(
+        children: [
+          Padding(
                   padding: const EdgeInsets.all(16),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: profileImageUrl.isNotEmpty
-                        ? Image.network(
-                            profileImageUrl,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(40),
+              child: profileImageUrl.isNotEmpty
+                  ? Image.network(
+                profileImageUrl,
                             width: 56,
                             height: 56,
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return const SizedBox(
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const SizedBox(
                                 width: 56,
                                 height: 56,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) => Icon(
-                              Icons.account_circle,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) => Icon(
+                  Icons.account_circle,
                               size: 56,
-                              color: Colors.grey[400],
-                            ),
-                          )
-                        : Icon(
-                            Icons.account_circle,
-                            size: 56,
-                            color: Colors.grey[400],
-                          ),
-                  ),
+                  color: Colors.grey[400],
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        userName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+              )
+                  : Icon(
+                Icons.account_circle,
+                            size: 56,
+                color: Colors.grey[400],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  userName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
                           fontSize: 20,
-                          color: Colors.black87,
+                    color: Colors.black87,
                           letterSpacing: 0.5,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Pending Approval',
-                        style: TextStyle(
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Pending Approval',
+                  style: TextStyle(
                           color: Colors.green[700],
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(right: 16),
-                  child: Icon(
-                    Icons.chevron_right,
-                    color: Color(0xFF43e97b),
-                    size: 32,
                   ),
                 ),
               ],
+            ),
+          ),
+          const Padding(
+                  padding: EdgeInsets.only(right: 16),
+            child: Icon(
+              Icons.chevron_right,
+                    color: Color(0xFF43e97b),
+                    size: 32,
+            ),
+          ),
+        ],
             ),
           ],
         ),
@@ -265,9 +265,9 @@ class AdminPage extends StatelessWidget {
         }
 
         TextEditingController quantityController =
-            TextEditingController(text: quantity?.toString());
+        TextEditingController(text: quantity?.toString());
         TextEditingController scoresController =
-            TextEditingController(text: totalScores?.toString());
+        TextEditingController(text: totalScores?.toString());
 
         showDialog(
           context: context,

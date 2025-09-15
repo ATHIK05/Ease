@@ -89,4 +89,8 @@ flutter:
     - lib/assets/runboy.png
     - lib/assets/runningboy.png
     - lib/assets/sea.jpg
+    - lib/assets/badges.png
+    - lib/assets/reports.png
+    - lib/assets/peoples.png
+    - lib/assets/a_bg.jpg
 

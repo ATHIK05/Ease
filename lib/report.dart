@@ -14,6 +14,7 @@ class MyReportsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
     final Query reportsQuery = FirebaseFirestore.instance
         .collection('reports')
         .where('userId', isEqualTo: userId)
@@ -21,23 +22,36 @@ class MyReportsScreen extends StatelessWidget {
 
     final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppTopBar(title: Text(l.myPendingReports, style: TextStyle(color: theme.appBarTheme.foregroundColor))),
+      appBar: AppTopBar(
+        title: Text(
+          l.myPendingReports,
+          style: TextStyle(
+            color: isDark ? Colors.white : theme.colorScheme.onPrimary,
+          ),
+        ),
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: reportsQuery.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-                child: Text(
-                  '${l.error}: ${snapshot.error}',
-                  style: TextStyle(color: theme.colorScheme.error),
-                ));
+              child: Text(
+                '${l.error}: ${snapshot.error}',
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            );
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           final docs = snapshot.data!.docs;
           if (docs.isEmpty) {
-            return Center(child: Text(l.noPendingReports, style: TextStyle(color: theme.textTheme.bodyLarge?.color)));
+            return Center(
+              child: Text(
+                l.noPendingReports,
+                style: TextStyle(color: theme.colorScheme.onBackground),
+              ),
+            );
           }
 
           return ListView.builder(
@@ -50,12 +64,11 @@ class MyReportsScreen extends StatelessWidget {
               String category = data['category'] ?? '';
               String reportId = docs[index].id;
 
-              // Truncate complaint text for a concise preview.
+              // Truncate complaint text for preview
               String shortComplaint = complaintText.length > 40
                   ? '${complaintText.substring(0, 40)}...'
                   : complaintText;
 
-              // Get image string for hero animation (if any).
               String imageBase64 = data['image'] ?? '';
 
               return GestureDetector(
@@ -80,23 +93,26 @@ class MyReportsScreen extends StatelessWidget {
                   );
                 },
                 child: Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   elevation: 3,
-                  color: theme.cardColor,
+                  color: theme.colorScheme.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: isDark ? Colors.green.shade900 : Colors.green.shade100,
-                      child: Icon(Icons.report, color: isDark ? Colors.greenAccent : Colors.green),
+                      backgroundColor: theme.colorScheme.primaryContainer,
+                      child: Icon(Icons.report,
+                          color: theme.colorScheme.onPrimaryContainer),
                     ),
                     title: Text(
                       category,
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: theme.textTheme.titleLarge?.color),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,18 +120,26 @@ class MyReportsScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           shortComplaint,
-                          style: TextStyle(fontSize: 14, color: theme.textTheme.bodyMedium?.color),
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurface
+                                  .withOpacity(0.8)),
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             Icon(Icons.calendar_today,
-                                size: 14, color: theme.iconTheme.color?.withOpacity(0.7)),
+                                size: 14,
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.7)),
                             const SizedBox(width: 4),
                             Text(
                               dateStr,
                               style: TextStyle(
-                                  fontSize: 12, color: theme.textTheme.bodySmall?.color),
+                                fontSize: 12,
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.7),
+                              ),
                             ),
                           ],
                         ),
@@ -124,7 +148,7 @@ class MyReportsScreen extends StatelessWidget {
                     trailing: Icon(
                       Icons.arrow_forward_ios,
                       size: 16,
-                      color: theme.iconTheme.color,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -165,19 +189,26 @@ class ReportDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    // Decode the Base64 image.
+
+    // Decode Base64 image
     Uint8List? imageBytes;
     if (imageBase64.isNotEmpty) {
       try {
         imageBytes = base64Decode(imageBase64);
-      } catch (e) {
+      } catch (_) {
         imageBytes = null;
       }
     }
 
     return Scaffold(
-      appBar: AppTopBar(title: Text(AppLocalizations.of(context)!.reportDetails, style: TextStyle(color: theme.appBarTheme.foregroundColor))),
-
+      appBar: AppTopBar(
+        title: Text(
+          AppLocalizations.of(context)!.reportDetails,
+          style: TextStyle(
+            color: isDark ? Colors.white : theme.colorScheme.onPrimary,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -200,63 +231,83 @@ class ReportDetailScreen extends StatelessWidget {
             Text(
               category,
               style: TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.bold, color: theme.textTheme.titleLarge?.color),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onBackground,
+              ),
             ),
             const Divider(thickness: 1.5),
             const SizedBox(height: 8),
             Text(
               '${AppLocalizations.of(context)!.complaint}:',
               style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.greenAccent : Colors.green.shade700),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.primary,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               complaintText,
-              style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
+              style: TextStyle(
+                fontSize: 16,
+                color: theme.colorScheme.onBackground,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.confirmation_number, color: theme.iconTheme.color),
+                Icon(Icons.confirmation_number,
+                    color: theme.colorScheme.onSurface),
                 const SizedBox(width: 8),
                 Text(
                   '${AppLocalizations.of(context)!.quantityLabel}: $quantity',
-                  style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.scale, color: theme.iconTheme.color),
+                Icon(Icons.scale, color: theme.colorScheme.onSurface),
                 const SizedBox(width: 8),
                 Text(
                   '${AppLocalizations.of(context)!.weightPerKgLabel}: $weightPerKg',
-                  style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.calendar_today, color: theme.iconTheme.color),
+                Icon(Icons.calendar_today, color: theme.colorScheme.onSurface),
                 const SizedBox(width: 8),
                 Text(
                   date,
-                  style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.info_outline, color: theme.iconTheme.color),
+                Icon(Icons.info_outline, color: theme.colorScheme.onSurface),
                 const SizedBox(width: 8),
                 Text(
                   '${AppLocalizations.of(context)!.statusLabel}: $status',
-                  style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),
@@ -268,27 +319,36 @@ class ReportDetailScreen extends StatelessWidget {
                   .get(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                   return Text(
-                     AppLocalizations.of(context)!.loadingUserInfo,
-                    style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
+                  return Text(
+                    AppLocalizations.of(context)!.loadingUserInfo,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: theme.colorScheme.onSurface,
+                    ),
                   );
                 }
                 if (!snapshot.hasData || !snapshot.data!.exists) {
-                   return Text(
-                     AppLocalizations.of(context)!.unknownUser,
-                    style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
+                  return Text(
+                    AppLocalizations.of(context)!.unknownUser,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: theme.colorScheme.onSurface,
+                    ),
                   );
                 }
                 final userData =
-                snapshot.data!.data() as Map<String, dynamic>;
+                    snapshot.data!.data() as Map<String, dynamic>;
                 String userName = userData['name'] ?? "Unknown";
                 return Row(
                   children: [
-                    Icon(Icons.person, color: theme.iconTheme.color),
+                    Icon(Icons.person, color: theme.colorScheme.onSurface),
                     const SizedBox(width: 8),
                     Text(
                       '${AppLocalizations.of(context)!.reportedBy}: $userName',
-                      style: TextStyle(fontSize: 16, color: theme.textTheme.bodyLarge?.color),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
                   ],
                 );

@@ -86,13 +86,13 @@ class _WildlifeProtectionGameState extends State<WildlifeProtectionGame>
           bool nearDanger = dangers.any((danger) =>
               !danger.isRemoved &&
               _getDistance(animal.x, animal.y, danger.x, danger.y) < 80);
-          
+
           if (nearDanger) {
             animal.happiness = math.max(0, animal.happiness - 10);
           } else {
             animal.happiness = math.min(100, animal.happiness + 5);
           }
-          
+
           animal.isSafe = animal.happiness > 70;
         }
       });
@@ -114,7 +114,7 @@ class _WildlifeProtectionGameState extends State<WildlifeProtectionGame>
       if (!danger.isRemoved) {
         danger.isRemoved = true;
         dangersRemoved++;
-        
+
         // Increase happiness of nearby animals
         for (var animal in animals) {
           if (_getDistance(animal.x, animal.y, danger.x, danger.y) < 100) {
@@ -123,7 +123,7 @@ class _WildlifeProtectionGameState extends State<WildlifeProtectionGame>
         }
       }
     });
-    
+
     _dangerController.forward().then((_) => _dangerController.reset());
   }
 
@@ -148,15 +148,19 @@ class _WildlifeProtectionGameState extends State<WildlifeProtectionGame>
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text("🦁 Wildlife Hero!"),
+        title: Text("🦁 Wildlife Hero!", style: TextStyle(color: Colors.black)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Fantastic! You protected all the animals!"),
+            Text("Fantastic! You protected all the animals!",
+                style: TextStyle(color: Colors.black)),
             SizedBox(height: 10),
-            Text("Animals Saved: ${animals.length} 🐾"),
-            Text("Dangers Removed: $dangersRemoved 🛡️"),
-            Text("You're a true guardian of nature! 🌿"),
+            Text("Animals Saved: ${animals.length} 🐾",
+                style: TextStyle(color: Colors.black)),
+            Text("Dangers Removed: $dangersRemoved 🛡️",
+                style: TextStyle(color: Colors.black)),
+            Text("You're a true guardian of nature! 🌿",
+                style: TextStyle(color: Colors.black)),
           ],
         ),
         actions: [
@@ -203,32 +207,38 @@ class _WildlifeProtectionGameState extends State<WildlifeProtectionGame>
           children: [
             // Forest background
             _buildForestBackground(),
-            
+
             // Animals
             ...animals.map((animal) => AnimatedBuilder(
-              animation: _animalController,
-              builder: (context, child) {
-                return Positioned(
-                  left: animal.x + math.sin(_animalController.value * 2 * math.pi + animal.id) * 15,
-                  top: animal.y + math.cos(_animalController.value * 2 * math.pi + animal.id) * 8,
-                  child: GestureDetector(
-                    onTap: () => _feedAnimal(animal.id),
-                    child: _buildAnimal(animal),
-                  ),
-                );
-              },
-            )),
-            
+                  animation: _animalController,
+                  builder: (context, child) {
+                    return Positioned(
+                      left: animal.x +
+                          math.sin(_animalController.value * 2 * math.pi +
+                                  animal.id) *
+                              15,
+                      top: animal.y +
+                          math.cos(_animalController.value * 2 * math.pi +
+                                  animal.id) *
+                              8,
+                      child: GestureDetector(
+                        onTap: () => _feedAnimal(animal.id),
+                        child: _buildAnimal(animal),
+                      ),
+                    );
+                  },
+                )),
+
             // Dangers
             ...dangers.where((d) => !d.isRemoved).map((danger) => Positioned(
-              left: danger.x,
-              top: danger.y,
-              child: GestureDetector(
-                onTap: () => _removeDanger(danger.id),
-                child: _buildDanger(danger),
-              ),
-            )),
-            
+                  left: danger.x,
+                  top: danger.y,
+                  child: GestureDetector(
+                    onTap: () => _removeDanger(danger.id),
+                    child: _buildDanger(danger),
+                  ),
+                )),
+
             // UI
             _buildGameUI(),
             _buildInstructions(),
@@ -250,7 +260,9 @@ class _WildlifeProtectionGameState extends State<WildlifeProtectionGame>
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        color: animal.isSafe ? Colors.green.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+        color: animal.isSafe
+            ? Colors.green.withOpacity(0.3)
+            : Colors.red.withOpacity(0.3),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Stack(
@@ -283,7 +295,7 @@ class _WildlifeProtectionGameState extends State<WildlifeProtectionGame>
       animation: _dangerController,
       builder: (context, child) {
         return Transform.scale(
-          scale: danger.id == dangersRemoved - 1 
+          scale: danger.id == dangersRemoved - 1
               ? 1.0 - _dangerController.value
               : 1.0,
           child: Container(
@@ -331,7 +343,8 @@ class _WildlifeProtectionGameState extends State<WildlifeProtectionGame>
                     color: Colors.brown[800],
                   ),
                 ),
-                Text("Safe Animals: ${animals.where((a) => a.isSafe).length}/${animals.length}"),
+                Text(
+                    "Safe Animals: ${animals.where((a) => a.isSafe).length}/${animals.length}"),
               ],
             ),
             Column(
@@ -423,14 +436,14 @@ class ForestPainter extends CustomPainter {
       paint.color = Colors.green[400 + (i % 3) * 100]!;
       final treeX = (i * size.width / 12) + (i % 2) * 20;
       final treeY = size.height * 0.7 + (i % 3) * 30;
-      
+
       // Tree trunk
       paint.color = Colors.brown[600]!;
       canvas.drawRect(
         Rect.fromLTWH(treeX, treeY, 15, 40),
         paint,
       );
-      
+
       // Tree crown
       paint.color = Colors.green[600]!;
       canvas.drawCircle(
@@ -487,4 +500,5 @@ class Danger {
 }
 
 enum AnimalType { elephant, tiger, panda, turtle, bird, butterfly }
+
 enum DangerType { trap, pollution, fire, hunter }

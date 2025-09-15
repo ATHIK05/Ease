@@ -471,7 +471,7 @@ class AdminDashboardPage extends StatelessWidget {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF43e97b), Color(0xFF38f9d7)],
+              colors: [Colors.green, Color(0xFF43e97b)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -504,6 +504,20 @@ class AdminDashboardPage extends StatelessWidget {
       ),
       body: Stack(
         children: [
+          // Add background image with reduced opacity
+          Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('lib/assets/a_bg.jpg'),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.white.withOpacity(0.65), // adjust opacity as needed
+                  BlendMode.srcATop,
+                ),
+              ),
+            ),
+          ),
+          // Existing gradient overlay for extra polish
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -515,83 +529,68 @@ class AdminDashboardPage extends StatelessWidget {
           ),
           Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
+                  // Dynamic Welcome Banner (not in a container)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 18),
+                    child: Column(
+                      children: [
+                        // Remove the image here
+                        Text(
+                          'Welcome Garbage Collectors!',
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width < 350 ? 22 : 30,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green[800],
+                            letterSpacing: 1.1,
+                            shadows: const [
+                              Shadow(
+                                blurRadius: 8,
+                                color: Colors.black12,
+                                offset: Offset(1, 2),
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          maxLines: 2,
+                          overflow: TextOverflow.visible,
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Let's nurture our green planet.",
+                          style: TextStyle(fontSize: 18, color: Colors.black54),
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          maxLines: 2,
+                          overflow: TextOverflow.visible,
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.all(16),
-                    child: const Icon(
-                      Icons.eco,
-                      size: 100,
-                      color: Color(0xFF43e97b),
-                    ),
                   ),
-                  const SizedBox(height: 20),
-                  const Center(
-                    child: Text(
-                      'Welcome Garbage Collectors!',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF43e97b),
-                        shadows: [
-                          Shadow(
-                            blurRadius: 10,
-                            color: Colors.black26,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Let\'s nurture our green planet.',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
+                  // Premium Dashboard Cards Row
                   Wrap(
-                    spacing: 20,
-                    runSpacing: 20,
+                    spacing: 18,
+                    runSpacing: 18,
                     alignment: WrapAlignment.center,
                     children: [
-                      FutureBuilder<int>(
-                        future: _getNotApprovedReportsCount(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return DashboardCard(
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 3.2,
+                        child: FutureBuilder<int>(
+                          future: _getNotApprovedReportsCount(),
+                          builder: (context, snapshot) {
+                            return _PremiumDashboardStat(
                               title: 'Reports',
-                              icon: Icons.report,
-                              value: '...',
-                            );
-                          } else if (snapshot.hasError) {
-                            return DashboardCard(
-                              title: 'Reports',
-                              icon: Icons.report,
-                              value: 'Err',
-                            );
-                          } else {
-                            return DashboardCard(
-                              title: 'Reports',
-                              icon: Icons.report,
-                              value: snapshot.data.toString(),
-                              onTap: () {
+                              value: snapshot.connectionState == ConnectionState.waiting
+                                  ? '...'
+                                  : (snapshot.hasError ? 'Err' : snapshot.data.toString()),
+                              imagePath: 'lib/assets/reports.png',
+                              textColor: const Color(0xFFEF6C00),
+                              imageSize: 72,
+                              onImageTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -600,47 +599,47 @@ class AdminDashboardPage extends StatelessWidget {
                                 );
                               },
                             );
-                          }
-                        },
+                          },
+                        ),
                       ),
-                      FutureBuilder<int>(
-                        future: _getNonAdminUserCount(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return DashboardCard(
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 3.2,
+                        child: FutureBuilder<int>(
+                          future: _getNonAdminUserCount(),
+                          builder: (context, snapshot) {
+                            return _PremiumDashboardStat(
                               title: 'Users',
-                              icon: Icons.people,
-                              value: '...',
+                              value: snapshot.connectionState == ConnectionState.waiting
+                                  ? '...'
+                                  : (snapshot.hasError ? 'Err' : snapshot.data.toString()),
+                              imagePath: 'lib/assets/peoples.png',
+                              textColor: const Color(0xFF1976D2),
+                              imageSize: 72,
+                              onImageTap: null,
                             );
-                          } else if (snapshot.hasError) {
-                            return DashboardCard(
-                              title: 'Users',
-                              icon: Icons.people,
-                              value: 'Err',
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 3.2,
+                        child: _PremiumDashboardStat(
+                          title: 'Points',
+                          value: '',
+                          imagePath: 'lib/assets/badges.png',
+                          textColor: const Color(0xFF388E3C),
+                          imageSize: 72,
+                          onImageTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const PointPage()),
                             );
-                          } else {
-                            return DashboardCard(
-                              title: 'Users',
-                              icon: Icons.people,
-                              value: snapshot.data.toString(),
-                            );
-                          }
-                        },
+                          },
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  DashboardCard(
-                    title: 'Points',
-                    icon: Icons.stars,
-                    value: '',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const PointPage()),
-                      );
-                    },
-                  ),
+                  const SizedBox(height: 40),
+                  // ... (rest of the dashboard content, if any)
                 ],
               ),
             ),
@@ -1556,6 +1555,54 @@ class _ReportDetailScreenState extends State<ReportDetailScreen> {
       children: [
         Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
         Expanded(child: Text(value)),
+      ],
+    );
+  }
+}
+
+// Add a new premium dashboard card widget
+class _PremiumDashboardStat extends StatelessWidget {
+  final String title;
+  final String value;
+  final String imagePath;
+  final Color textColor;
+  final double imageSize;
+  final VoidCallback? onImageTap;
+  const _PremiumDashboardStat({
+    required this.title,
+    required this.value,
+    required this.imagePath,
+    required this.textColor,
+    required this.imageSize,
+    this.onImageTap,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: onImageTap,
+          child: Image.asset(imagePath, width: imageSize, height: imageSize),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 16,
+            color: textColor,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
